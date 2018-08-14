@@ -304,6 +304,7 @@ inline static void Audio_Play_Out(void)
 	}
 }
 
+
 /**
 	* @brief  Main program
 	* @param  None
@@ -340,9 +341,9 @@ int main(void)
 	{
 		logs_error("Configure MBR3");
 	}
+
 	/* Configure LED RING */
 	ws281x_init();
-	setWHOLEcolor(0, 0, 255);
 
 	/* PWM output */
 	PWMInit();
@@ -596,6 +597,7 @@ void I2C4_Init(void)
 		_Error_Handler(__FILE__, __LINE__);
 	}
 }
+
 void GPIO_INT_Init(void)
 {
     GPIO_InitTypeDef    GPIO_Init;
