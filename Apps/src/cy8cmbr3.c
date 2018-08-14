@@ -85,6 +85,7 @@ CY8CMBR3116_Result ConfigureMBR3(I2C_HandleTypeDef *I2Cx)
         logs_error("Send configuration");
         return CY8CMBR3116_Result_ERROR;
     }
+//    HAL_Delay(100); //need, if dont run
 
     //apply configuration to MBR3
     TxBuffer[0] = CTRL_CMD;
@@ -95,6 +96,7 @@ CY8CMBR3116_Result ConfigureMBR3(I2C_HandleTypeDef *I2Cx)
         logs_error("CRC checking");
         return CY8CMBR3116_Result_ERROR;
     }
+    HAL_Delay(100);
 
     TxBuffer[0] = CTRL_CMD;
     TxBuffer[1] = SW_RESET;
@@ -175,5 +177,7 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 4 TOUCHED");
         touched = 1;
+        //define I2C4 send here
+        
     }
 }

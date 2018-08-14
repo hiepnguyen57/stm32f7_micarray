@@ -333,13 +333,13 @@ int main(void)
 	I2C4_Init();
 
 	STA321MP_Ini();
+
 	/* Configure MBR3 */
 	result = ConfigureMBR3(&hi2c1);
 	if(result != CY8CMBR3116_Result_OK)
 	{
 		logs_error("Configure MBR3");
 	}
-
 	/* Configure LED RING */
 	ws281x_init();
 	setWHOLEcolor(0, 0, 255);
