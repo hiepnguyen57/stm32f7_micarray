@@ -65,6 +65,8 @@
 #define I2C_ADDRESS 			0xD0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+uint8_t aTxBuffer[] = "Hello Worldd";
+uint8_t aRxBuffer[RXBUFFERSIZE];
 CY8CMBR3116_Result result;
 
 LPTIM_HandleTypeDef             LptimHandle;
@@ -365,7 +367,6 @@ int main(void)
 		if (flg10ms==1)
 		{
 			flg10ms=0;  
-
 #if DEBUG
 			sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
 			printf("%s\r\n", pUARTBuf);
@@ -596,6 +597,8 @@ void I2C4_Init(void)
 		/* Initialization Error */
 		_Error_Handler(__FILE__, __LINE__);
 	}
+	/* Enable the Analog I2C Filter */
+	HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE);
 }
 
 void GPIO_INT_Init(void)
@@ -605,14 +608,20 @@ void GPIO_INT_Init(void)
     CPU_INT0_GPIO_CLK_ENABLE();
     CPU_INT1_GPIO_CLK_ENABLE();
 
-    GPIO_Init.Pin   = CPU_INT0_PIN;
+    GPIO_Init.Pin   = CPU_INT1_PIN;
     GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_Init.Pull  = GPIO_PULLUP;
     GPIO_Init.Speed = GPIO_SPEED_LOW;
-    HAL_GPIO_Init(CPU_INT0_GPIO_PORT, &GPIO_Init);
+    HAL_GPIO_Init(CPU_INT1_GPIO_PORT, &GPIO_Init);
+
+    /* Configure PD0 pin as input floating */
+    // GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
+    // GPIO_Init.Pull = GPIO_NOPULL;
+    // GPIO_Init.Pin  = CPU_INT0_PIN;
+    // HAL_GPIO_Init(CPU_INT0_GPIO_PORT, &GPIO_Init);
 
     /* Set Pin as low level */
-    HAL_GPIO_WritePin(CPU_INT0_GPIO_PORT, CPU_INT0_PIN, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(CPU_INT1_GPIO_PORT, CPU_INT1_PIN, GPIO_PIN_RESET);
 }
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
