@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "cy8cmbr3.h"
 
+extern I2C_HandleTypeDef hi2c4;
+
+uint8_t TxData[2];
+
 /* Above are the Command Codes used to configure MBR3*/
 uint8_t configData[129] = {
     //The below configuration array enables all 4 buttons, Host interrupt
@@ -171,15 +175,20 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 3 TOUCHED");
         touched = 1;
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET);
     }
 
     if(buffer & BUTTON_4)
     {
         logs("Button 4 TOUCHED");
         touched = 1;
-        //define I2C4 send here
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
-
+        //sending I2C data to Mainboard
+        OUPUT_PIN_GENERATE_PULSE();
+        TxData[0] = 0x04;
+        TxData[1] = 0x05;
+        if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+        {
+            /* Transfer error in transmission process */
+            logs_error("error transfer");
+        }
     }
 }

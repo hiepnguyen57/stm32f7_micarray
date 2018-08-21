@@ -738,11 +738,16 @@ void EXTI0_IRQHandler(void)
   */
 void EXTI9_5_IRQHandler(void)
 {
-	printf("PB7 interrupt here\r\n");
 	/* EXTI line 7 interrupt detected */
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
 	{
-		//do something here
+		//receiving data from Mainboard
+		logs("Receive I2C Data from Mainboard");
+		if(HAL_I2C_Slave_Receive(&hi2c4, (uint8_t *)aRxBuffer, 2, 10000) == HAL_OK)
+		{
+				printf("%#x\r\n", aRxBuffer[0]);
+				printf("%#x\r\n", aRxBuffer[1]);
+		}
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
 	HAL_GPIO_EXTI_Callback(GPIO_PIN_7);

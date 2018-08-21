@@ -94,6 +94,8 @@ void _Error_Handler(char *, int);
 #define CPU_INPUT_GPIO_PORT         GPIOB
 #define CPU_INPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOB_CLK_ENABLE()
 
+//export function
+void OUPUT_PIN_GENERATE_PULSE(void);
 #endif /* __MAIN_H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
