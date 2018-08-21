@@ -171,6 +171,7 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 3 TOUCHED");
         touched = 1;
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_RESET);
     }
 
     if(buffer & BUTTON_4)
@@ -178,6 +179,7 @@ void DisplaySensorStatus(uint8_t buffer)
         logs("Button 4 TOUCHED");
         touched = 1;
         //define I2C4 send here
-        
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_0, GPIO_PIN_SET);
+
     }
 }

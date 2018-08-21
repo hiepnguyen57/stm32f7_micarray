@@ -129,6 +129,12 @@ void I2C1_Init(void);
 void I2C4_Init(void);
 void GPIO_INT_Init(void);
 /* Private functions ---------------------------------------------------------*/
+void OUPUT_PIN_GENERATE_PULSE(void)
+{
+	HAL_GPIO_WritePin(CPU_OUTPUT_GPIO_PORT, CPU_OUTPUT_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(CPU_OUTPUT_GPIO_PORT, CPU_OUTPUT_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(CPU_OUTPUT_GPIO_PORT, CPU_OUTPUT_PIN, GPIO_PIN_SET);
+}
 /*--------------INLINE FUNCTION-----------------------------------------------*/
 inline static void BF_Update(void)
 {       
@@ -364,14 +370,14 @@ int main(void)
 	while(1)
 	{
 		BF_Update();
-		if (flg10ms==1)
-		{
-			flg10ms=0;  
-#if DEBUG
-			sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-			printf("%s\r\n", pUARTBuf);
-#endif
-		}
+// 		if (flg10ms==1)
+// 		{
+// 			flg10ms=0;  
+// #if DEBUG
+// 			sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+// 			printf("%s\r\n", pUARTBuf);
+// #endif
+// 		}
 	}
 }
 
@@ -598,30 +604,41 @@ void I2C4_Init(void)
 		_Error_Handler(__FILE__, __LINE__);
 	}
 	/* Enable the Analog I2C Filter */
-	HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE);
+	HAL_I2CEx_ConfigAnalogFilter(&hi2c4, I2C_ANALOGFILTER_ENABLE);
 }
 
 void GPIO_INT_Init(void)
 {
     GPIO_InitTypeDef    GPIO_Init;
 
-    CPU_INT0_GPIO_CLK_ENABLE();
-    CPU_INT1_GPIO_CLK_ENABLE();
+    CPU_INPUT_GPIO_CLK_ENABLE();
+    CPU_OUTPUT_GPIO_CLK_ENABLE();
 
-    GPIO_Init.Pin   = CPU_INT1_PIN;
+    //fixed error cut PD0 line
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+
+	// Configure PE0 as output pin
+    GPIO_Init.Pin   = CPU_OUTPUT_PIN;
     GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_Init.Pull  = GPIO_PULLUP;
-    GPIO_Init.Speed = GPIO_SPEED_LOW;
-    HAL_GPIO_Init(CPU_INT1_GPIO_PORT, &GPIO_Init);
+    GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(CPU_OUTPUT_GPIO_PORT, &GPIO_Init);
 
-    /* Configure PD0 pin as input floating */
-    // GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
-    // GPIO_Init.Pull = GPIO_NOPULL;
-    // GPIO_Init.Pin  = CPU_INT0_PIN;
-    // HAL_GPIO_Init(CPU_INT0_GPIO_PORT, &GPIO_Init);
+    /* Configure PB7 pin as input floating */
+    GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_Init.Pull = GPIO_NOPULL;
+    GPIO_Init.Pin  = CPU_INPUT_PIN;
+    HAL_GPIO_Init(CPU_INPUT_GPIO_PORT, &GPIO_Init);
 
-    /* Set Pin as low level */
-    HAL_GPIO_WritePin(CPU_INT1_GPIO_PORT, CPU_INT1_PIN, GPIO_PIN_RESET);
+    //fixed error cut PD0 line, remove in new version
+    GPIO_Init.Mode = GPIO_MODE_INPUT;
+    GPIO_Init.Pull = GPIO_NOPULL;
+    GPIO_Init.Pin  = GPIO_PIN_0;
+    HAL_GPIO_Init(GPIOD, &GPIO_Init);
+
+    /* Enable adn set EXTI Line7 Interrupt */
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 1);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
@@ -691,10 +708,6 @@ void EXTI4_IRQHandler(void)
 	}
 }
 
-void EXTI15_10_IRQHandler(void)
-{
-
-}
 
 /**
   * @brief  This function handles External line 0 interrupt request.
@@ -714,7 +727,28 @@ void EXTI0_IRQHandler(void)
 		}
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+	HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
+
 }
+
+/**
+  * @brief  This function handles External line [9:5] interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI9_5_IRQHandler(void)
+{
+	printf("PB7 interrupt here\r\n");
+	/* EXTI line 7 interrupt detected */
+	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
+	{
+		//do something here
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+	HAL_GPIO_EXTI_Callback(GPIO_PIN_7);
+
+}
+
 
 static void USB_Audio_Config(void)
 {

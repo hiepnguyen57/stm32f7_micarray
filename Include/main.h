@@ -86,13 +86,13 @@ void _Error_Handler(char *, int);
 # define logs_error(fmt) do {} while (0)
 #endif
 
-#define CPU_INT0_PIN               GPIO_PIN_0
-#define CPU_INT0_GPIO_PORT         GPIOD
-#define CPU_INT0_GPIO_CLK_ENABLE() __HAL_RCC_GPIOD_CLK_ENABLE()
+#define CPU_OUTPUT_PIN               GPIO_PIN_0
+#define CPU_OUTPUT_GPIO_PORT         GPIOE
+#define CPU_OUTPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOE_CLK_ENABLE()
 
-#define CPU_INT1_PIN               GPIO_PIN_0
-#define CPU_INT1_GPIO_PORT         GPIOE
-#define CPU_INT1_GPIO_CLK_ENABLE() __HAL_RCC_GPIOE_CLK_ENABLE()
+#define CPU_INPUT_PIN               GPIO_PIN_7
+#define CPU_INPUT_GPIO_PORT         GPIOB
+#define CPU_INPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOB_CLK_ENABLE()
 
 #endif /* __MAIN_H__ */
 
