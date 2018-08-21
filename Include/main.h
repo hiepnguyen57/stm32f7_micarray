@@ -46,6 +46,7 @@
 #include "log.h"
 #include "i2c.h"
 #include "mic_array.h"
+#include "command.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
