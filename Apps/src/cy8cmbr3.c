@@ -166,7 +166,7 @@ void DisplaySensorStatus(uint8_t buffer)
         //sending I2C data to Mainboard
         OUPUT_PIN_GENERATE_PULSE();
 
-        TxData[0] = CYPRESS_BT1;
+        TxData[0] = CYPRESS_BUTTON;
         TxData[1] = VOLUME_UP;
         if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
         {
@@ -183,7 +183,7 @@ void DisplaySensorStatus(uint8_t buffer)
         //sending I2C data to Mainboard
         OUPUT_PIN_GENERATE_PULSE();
 
-        TxData[0] = CYPRESS_BT2;
+        TxData[0] = CYPRESS_BUTTON;
         TxData[1] = VOLUME_MUTE;
         if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
         {
@@ -200,7 +200,7 @@ void DisplaySensorStatus(uint8_t buffer)
         //sending I2C data to Mainboard
         OUPUT_PIN_GENERATE_PULSE();
 
-        TxData[0] = CYPRESS_BT3;
+        TxData[0] = CYPRESS_BUTTON;
         TxData[1] = VOLUME_DOWN;
         if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
         {
@@ -217,8 +217,8 @@ void DisplaySensorStatus(uint8_t buffer)
         //sending I2C data to Mainboard
         OUPUT_PIN_GENERATE_PULSE();
 
-        TxData[0] = CYPRESS_BT4;
-        TxData[1] = WAKE_WORD;
+        TxData[0] = CYPRESS_BUTTON;
+        TxData[1] = WAKE_WORD_START;
         if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
         {
             /* Transfer error in transmission process */
