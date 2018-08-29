@@ -68,6 +68,7 @@
 uint8_t aTxBuffer[] = "Hello Worldd";
 uint8_t aRxBuffer[RXBUFFERSIZE];
 CY8CMBR3116_Result result;
+uint8_t STATE = 0;
 
 LPTIM_HandleTypeDef             LptimHandle;
 
@@ -128,6 +129,7 @@ void PWMInit(void);
 void I2C1_Init(void);
 void I2C4_Init(void);
 void GPIO_INT_Init(void);
+void Control_Handler(void);
 /* Private functions ---------------------------------------------------------*/
 void OUPUT_PIN_GENERATE_PULSE(void)
 {
@@ -313,6 +315,80 @@ inline static void Audio_Play_Out(void)
 }
 
 
+void Control_Handler(void)
+{
+	uint8_t led_num;
+
+	if(aRxBuffer[0] == LED_RING)
+	{
+
+	}
+	else if(aRxBuffer[0] == MIC_ARRAY)
+	{
+
+	}
+	else if(aRxBuffer[0] == CYPRESS_BUTTON)
+	{
+		switch(aRxBuffer[1])
+		{
+			case VOLUME_UP:
+				CLEAR_ALL_LEDS();
+				for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+				{
+					setLEDcolor(led_num, 100, 100, 100);
+				}
+				HAL_Delay(3000);
+				CLEAR_ALL_LEDS();
+				break;
+
+			case VOLUME_DOWN:
+				CLEAR_ALL_LEDS();
+				for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+				{
+					setLEDcolor(led_num, 100, 100, 100);
+				}
+				HAL_Delay(3000);
+				CLEAR_ALL_LEDS();
+				break;
+
+			case VOLUME_MUTE:
+				CLEAR_ALL_LEDS();
+				setWHOLEcolor(255, 255, 0);
+				break;
+
+			case VOLUME_UNMUTE:
+				CLEAR_ALL_LEDS();
+				break;
+		}
+	}
+	else if(aRxBuffer[0] == EVENT_HANLE) 
+	{
+		switch(aRxBuffer[1])
+		{
+			case WAKE_WORD_STOP:
+				stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
+				CLEAR_ALL_LEDS();
+				break;
+
+			case WIFI_DISCONNECTED:
+				CLEAR_ALL_LEDS();
+				setWHOLEcolor(255, 128, 0);
+				break;
+
+			case WIFI_CONNECTED:
+				CLEAR_ALL_LEDS();
+				setWHOLEcolor(0, 255, 0);
+				HAL_Delay(3000);
+				CLEAR_ALL_LEDS();
+				break;
+		}
+	}
+	else
+	{
+		logs("Nothing here!!!");
+
+	}
+}
 /**
 	* @brief  Main program
 	* @param  None
@@ -344,7 +420,7 @@ int main(void)
 	STA321MP_Ini();
 
 	/* Configure MBR3 */
-	result = ConfigureMBR3(&hi2c1);
+	result = ConfigureMBR3();
 	if(result != CY8CMBR3116_Result_OK)
 	{
 		logs_error("Configure MBR3");
@@ -352,7 +428,10 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-
+	setWHOLEcolor(200, 0, 0);
+ //    stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
+	// stripEffect_CircularRing(40, 0, 200, 200);
+	// stripEffect_AllColors(300);
 	/* PWM output */
 	PWMInit();
 
@@ -369,15 +448,23 @@ int main(void)
 
 	while(1)
 	{
-		BF_Update();
-// 		if (flg10ms==1)
-// 		{
-// 			flg10ms=0;  
-// #if DEBUG
-// 			sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-// 			printf("%s\r\n", pUARTBuf);
-// #endif
-// 		}
+		if(STATE == 0)
+		{
+			BF_Update();
+			if (flg10ms==1)
+			{
+				flg10ms=0;  
+#if DEBUG
+				sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+				printf("%s\r\n", pUARTBuf);
+#endif
+			}
+		}
+		else
+		{
+			Control_Handler();
+			STATE = 0;
+		}
 	}
 }
 
@@ -720,7 +807,7 @@ void EXTI0_IRQHandler(void)
 	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
 	{
 		//Read button status
-		result = ReadandDisplaySensorStatus(&hi2c1);
+		result = ReadandDisplaySensorStatus();
 		if(result != CY8CMBR3116_Result_OK)
 		{
 			logs_error("CYPRESS read status");
@@ -743,11 +830,13 @@ void EXTI9_5_IRQHandler(void)
 	{
 		//receiving data from Mainboard
 		logs("Receive I2C Data from Mainboard");
-		if(HAL_I2C_Slave_Receive(&hi2c4, (uint8_t *)aRxBuffer, 2, 10000) == HAL_OK)
+		if(HAL_I2C_Slave_Receive(&hi2c4, (uint8_t *)aRxBuffer, 3, 10000) == HAL_OK)
 		{
 				printf("%#x\r\n", aRxBuffer[0]);
 				printf("%#x\r\n", aRxBuffer[1]);
+				printf("%#x\r\n", aRxBuffer[2]);
 		}
+		STATE = 1;
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
 	HAL_GPIO_EXTI_Callback(GPIO_PIN_7);

@@ -87,7 +87,7 @@
 #define SENSOR_ID               0x82
 #define CTRL_CMD                0x86
 #define BUTTON_STATUS           0xAA
-
+#define GPO_DATA                0xDA
 /* Command Codes */
 #define CMD_NULL                0x00
 #define SAVE_CHECK_CRC          0x02
@@ -125,6 +125,7 @@
 #define BUTTON_3                0x20
 #define BUTTON_4                0x40
 
+#define GPO_MASK(i)               (1 << i)
 typedef enum 
 {
     CY8CMBR3116_Result_OK  = 0x00,          /*Everything is OK */
@@ -134,8 +135,8 @@ typedef enum
 }CY8CMBR3116_Result;
 /* Exported functions ------------------------------------------------------- */
 void MBR3_HOST_INT_Config(void);
-CY8CMBR3116_Result ConfigureMBR3(I2C_HandleTypeDef *I2Cx);
-CY8CMBR3116_Result ReadandDisplaySensorStatus(I2C_HandleTypeDef *I2Cx);
+CY8CMBR3116_Result ConfigureMBR3(void);
+CY8CMBR3116_Result ReadandDisplaySensorStatus(void);
 void DisplaySensorStatus(uint8_t buffer);
 
 #endif 

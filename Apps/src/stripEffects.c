@@ -209,7 +209,7 @@ void stripEffect_AllColors(uint32_t interval) {
 	uint32_t index = 0;
 	uint32_t led;
 
-	while (1) {
+	while (interval-- > 0) {
 		for (led = 0; led < LED_NUMBER; led++)
 			setLEDcolor(led, colorsFull[index + led][0],
 					colorsFull[index + led][1], colorsFull[index + led][2]);
@@ -219,7 +219,7 @@ void stripEffect_AllColors(uint32_t interval) {
 		if ((index + led) >= 766)
 			index = 0;
 
-		HAL_Delay(interval);
+		HAL_Delay(10);
 	}
 }
 
@@ -244,7 +244,7 @@ void stripEffect_CircularRing(uint32_t interval, uint8_t red, uint8_t green,
 		uint8_t blue) {
 	uint32_t index = 0;
 
-	while (1) {
+	while (interval-- > 0) {
 		setWHOLEcolor(0, 0, 0);
 		setLEDcolor(index, red, green, blue);
 		index++;
@@ -252,7 +252,7 @@ void stripEffect_CircularRing(uint32_t interval, uint8_t red, uint8_t green,
 		if (index >= LED_NUMBER)
 			index = 0;
 
-		HAL_Delay(interval);
+		HAL_Delay(50);
 	}
 }
 
@@ -364,12 +364,12 @@ void stripEffect_AlternateColors(uint32_t interval, uint32_t steps,
 		uint8_t greenB, uint8_t blueB) {
 	uint32_t i;
 	int32_t deltaRed, deltaGreen, deltaBlue;
-
+	uint8_t time=1;
 	deltaRed = ((int32_t) redB - (int32_t) redA) / (int32_t) steps;
 	deltaGreen = ((int32_t) greenB - (int32_t) greenA) / (int32_t) steps;
 	deltaBlue = ((int32_t) blueB - (int32_t) blueA) / (int32_t) steps;
 
-	while (1) {
+	while (time-- > 0) {
 		for (i = 0; i < steps; i++) {
 			setWHOLEcolor(redA + i * deltaRed, greenA + i * deltaGreen,
 					+blueA + i * deltaBlue);
