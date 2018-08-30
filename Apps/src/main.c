@@ -325,7 +325,7 @@ void Button_Event(uint8_t Command)
 			{
 				setLEDcolor(led_num, 100, 100, 100);
 			}
-			HAL_Delay(3000);
+			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
 			break;
 
@@ -335,13 +335,30 @@ void Button_Event(uint8_t Command)
 			{
 				setLEDcolor(led_num, 100, 100, 100);
 			}
-			HAL_Delay(3000);
+			HAL_Delay(1000);
+			CLEAR_ALL_LEDS();
+			break;
+
+		case VOLUME_MUTE:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(100, 100, 0);
+			HAL_Delay(1000);
+			CLEAR_ALL_LEDS();
+			break;
+
+		case VOLUME_UNMUTE:
+			CLEAR_ALL_LEDS();
+			for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+			{
+				setLEDcolor(led_num, 100, 100, 100);
+			}
+			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
 			break;
 
 		case MICROPHONE_MUTE:
 			CLEAR_ALL_LEDS();
-			setWHOLEcolor(100, 100, 0);
+			setWHOLEcolor(100, 0, 0);
 			MIC_CHECK = 1;
 			break;
 
