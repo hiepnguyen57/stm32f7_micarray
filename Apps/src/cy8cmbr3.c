@@ -6,7 +6,7 @@
 extern I2C_HandleTypeDef hi2c4;
 extern I2C_HandleTypeDef hi2c1;
 
-#define WakeWord_Effect()           setWHOLEcolor(51, 255, 255)
+#define WakeWord_Effect()           setWHOLEcolor(10, 100, 100)
 
 uint8_t TxData[2];
 
@@ -192,12 +192,12 @@ void DisplaySensorStatus(uint8_t buffer)
 
         if(!gpo4_status)
         {
-            logs("mute");
+            logs("microphone mute");
             //sending I2C data to Mainboard
             OUPUT_PIN_GENERATE_PULSE();
 
             TxData[0] = CYPRESS_BUTTON;
-            TxData[1] = VOLUME_MUTE;
+            TxData[1] = MICROPHONE_MUTE;
             if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
             {
                 /* Transfer error in transmission process */
@@ -206,12 +206,12 @@ void DisplaySensorStatus(uint8_t buffer)
         }
         else
         {
-            logs("unmute");
+            logs("microphone unmute");
             //sending I2C data to Mainboard
             OUPUT_PIN_GENERATE_PULSE();
 
             TxData[0] = CYPRESS_BUTTON;
-            TxData[1] = VOLUME_UNMUTE;
+            TxData[1] = MICROPHONE_UNMUTE;
             if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
             {
                 /* Transfer error in transmission process */
@@ -244,20 +244,26 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 4 TOUCHED");
         touched = 1;
+        gpo4_status = LED_BTN2_Status();
 
-        CLEAR_ALL_LEDS();
-
-        WakeWord_Effect();
-        //sending I2C data to Mainboard
-        OUPUT_PIN_GENERATE_PULSE();
-
-        TxData[0] = CYPRESS_BUTTON;
-        TxData[1] = WAKE_WORD_START;
-        if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+        if(gpo4_status)
         {
-            /* Transfer error in transmission process */
-            logs_error("error transfer");
+            CLEAR_ALL_LEDS();
+            WakeWord_Effect();
+
+            logs("microphone is working");
+            //sending I2C data to Mainboard
+            OUPUT_PIN_GENERATE_PULSE();
+
+            TxData[0] = CYPRESS_BUTTON;
+            TxData[1] = BT_WAKEWORD_START;
+            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            {
+                /* Transfer error in transmission process */
+                logs_error("error transfer");
+            }
         }
+
     }
 }
 

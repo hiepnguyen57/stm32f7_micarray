@@ -69,7 +69,7 @@ uint8_t aTxBuffer[] = "Hello Worldd";
 uint8_t aRxBuffer[RXBUFFERSIZE];
 CY8CMBR3116_Result result;
 uint8_t STATE = 0;
-
+uint8_t MIC_CHECK = 0;
 LPTIM_HandleTypeDef             LptimHandle;
 
 extern Mic_Array_Data Buffer1,Buffer2,Buffer3;
@@ -314,14 +314,71 @@ inline static void Audio_Play_Out(void)
 	}
 }
 
+void Button_Event(uint8_t Command)
+{
+	uint8_t led_num;
+	switch(Command)
+	{
+		case VOLUME_UP:
+			CLEAR_ALL_LEDS();
+			for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+			{
+				setLEDcolor(led_num, 100, 100, 100);
+			}
+			HAL_Delay(3000);
+			CLEAR_ALL_LEDS();
+			break;
+
+		case VOLUME_DOWN:
+			CLEAR_ALL_LEDS();
+			for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+			{
+				setLEDcolor(led_num, 100, 100, 100);
+			}
+			HAL_Delay(3000);
+			CLEAR_ALL_LEDS();
+			break;
+
+		case MICROPHONE_MUTE:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(100, 100, 0);
+			MIC_CHECK = 1;
+			break;
+
+		case MICROPHONE_UNMUTE:
+			CLEAR_ALL_LEDS();
+			MIC_CHECK = 0;
+			break;
+	}
+}
+void User_Event(uint8_t Command)
+{
+	switch(Command)
+	{
+		case WAKE_WORD_STOP:
+			stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
+			CLEAR_ALL_LEDS();
+			break;
+
+		case WIFI_DISCONNECTED:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(255, 128, 0);
+			break;
+
+		case WIFI_CONNECTED:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(0, 255, 0);
+			HAL_Delay(3000);
+			CLEAR_ALL_LEDS();
+			break;
+	}
+}
 
 void Control_Handler(void)
 {
-	uint8_t led_num;
 
 	if(aRxBuffer[0] == LED_RING)
 	{
-
 	}
 	else if(aRxBuffer[0] == MIC_ARRAY)
 	{
@@ -329,59 +386,12 @@ void Control_Handler(void)
 	}
 	else if(aRxBuffer[0] == CYPRESS_BUTTON)
 	{
-		switch(aRxBuffer[1])
-		{
-			case VOLUME_UP:
-				CLEAR_ALL_LEDS();
-				for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
-				{
-					setLEDcolor(led_num, 100, 100, 100);
-				}
-				HAL_Delay(3000);
-				CLEAR_ALL_LEDS();
-				break;
+		Button_Event(aRxBuffer[1]);
 
-			case VOLUME_DOWN:
-				CLEAR_ALL_LEDS();
-				for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
-				{
-					setLEDcolor(led_num, 100, 100, 100);
-				}
-				HAL_Delay(3000);
-				CLEAR_ALL_LEDS();
-				break;
-
-			case VOLUME_MUTE:
-				CLEAR_ALL_LEDS();
-				setWHOLEcolor(255, 255, 0);
-				break;
-
-			case VOLUME_UNMUTE:
-				CLEAR_ALL_LEDS();
-				break;
-		}
 	}
-	else if(aRxBuffer[0] == EVENT_HANLE) 
+	else if(aRxBuffer[0] == USER_EVENT) 
 	{
-		switch(aRxBuffer[1])
-		{
-			case WAKE_WORD_STOP:
-				stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
-				CLEAR_ALL_LEDS();
-				break;
-
-			case WIFI_DISCONNECTED:
-				CLEAR_ALL_LEDS();
-				setWHOLEcolor(255, 128, 0);
-				break;
-
-			case WIFI_CONNECTED:
-				CLEAR_ALL_LEDS();
-				setWHOLEcolor(0, 255, 0);
-				HAL_Delay(3000);
-				CLEAR_ALL_LEDS();
-				break;
-		}
+		User_Event(aRxBuffer[1]);
 	}
 	else
 	{
@@ -428,10 +438,8 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-	setWHOLEcolor(200, 0, 0);
- //    stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
-	// stripEffect_CircularRing(40, 0, 200, 200);
-	// stripEffect_AllColors(300);
+	setWHOLEcolor(10, 0, 0);
+
 	/* PWM output */
 	PWMInit();
 
@@ -450,15 +458,19 @@ int main(void)
 	{
 		if(STATE == 0)
 		{
-			BF_Update();
-			if (flg10ms==1)
+			if(!MIC_CHECK)
 			{
-				flg10ms=0;  
+				BF_Update();
+				if (flg10ms==1)
+				{
+					flg10ms=0;  
 #if DEBUG
-				sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-				printf("%s\r\n", pUARTBuf);
+					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+					printf("%s\r\n", pUARTBuf);
 #endif
+				}
 			}
+
 		}
 		else
 		{
