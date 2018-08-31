@@ -368,6 +368,7 @@ void Button_Event(uint8_t Command)
 			break;
 	}
 }
+
 void User_Event(uint8_t Command)
 {
 	switch(Command)
@@ -388,32 +389,37 @@ void User_Event(uint8_t Command)
 			HAL_Delay(3000);
 			CLEAR_ALL_LEDS();
 			break;
+
+		case MICROPHONE_MUTE:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(100, 0, 0);
+			MIC_CHECK = 1;
+			break;
+
+		case MICROPHONE_UNMUTE:
+			CLEAR_ALL_LEDS();
+			MIC_CHECK = 0;
+			break;
 	}
 }
 
 void Control_Handler(void)
 {
-
-	if(aRxBuffer[0] == LED_RING)
+	switch(aRxBuffer[0])
 	{
-	}
-	else if(aRxBuffer[0] == MIC_ARRAY)
-	{
-
-	}
-	else if(aRxBuffer[0] == CYPRESS_BUTTON)
-	{
-		Button_Event(aRxBuffer[1]);
-
-	}
-	else if(aRxBuffer[0] == USER_EVENT) 
-	{
-		User_Event(aRxBuffer[1]);
-	}
-	else
-	{
-		logs("Nothing here!!!");
-
+		case LED_RING:
+			break;
+		case MIC_ARRAY:
+			break;
+		case CYPRESS_BUTTON:
+			Button_Event(aRxBuffer[1]);
+			break;
+		case USER_EVENT:
+			User_Event(aRxBuffer[1]);
+			break;
+		default:
+			logs("Nothing");
+			break;
 	}
 }
 /**
