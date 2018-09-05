@@ -14,7 +14,7 @@ uint8_t TxData[2];
 uint8_t configData[129] = {
     //The below configuration array enables all 4 buttons, Host interrupt
     0x00u, //REMAP_REGISTER
-    0x78u, 0x00u, 0x00u, 0x00u, 0x10u, 0x00u, 0x00u, 0x00u,
+    0x78u, 0x00u, 0x00u, 0x00u, 0x20u, 0x00u, 0x00u, 0x00u,
     0x00u, 0x00u, 0x00u, 0x00u, 0x7Fu, 0x7Fu, 0x7Fu, 0x80u,
     0x80u, 0x80u, 0x80u, 0x7Fu, 0x7Fu, 0x7Fu, 0x7Fu, 0x7Fu,
     0x7Fu, 0x7Fu, 0x7Fu, 0x7Fu, 0x03u, 0x00u, 0x00u, 0x00u,
@@ -55,7 +55,7 @@ uint8_t configData[129] = {
 
 
 uint8_t *TxBuffer;
-uint8_t LED_BTN2_Status(void);
+uint8_t LED_BTN3_Status(void);
 
 void MBR3_HOST_INT_Config(void)
 {
@@ -155,7 +155,7 @@ CY8CMBR3116_Result ReadandDisplaySensorStatus(void)
 void DisplaySensorStatus(uint8_t buffer)
 {
     static int touched=0, prox=0;
-    uint8_t gpo4_status;
+    uint8_t gpo5_status;
 
     if(touched)
     {
@@ -163,9 +163,28 @@ void DisplaySensorStatus(uint8_t buffer)
         logs("Button released");
     }
 
-    if(buffer & BUTTON_1)
+    if(buffer & VOLUME_DOWN_BT)
     {
         logs("Button 1 TOUCHED");
+        touched = 1;
+
+        CLEAR_ALL_LEDS();
+
+        //sending I2C data to Mainboard
+        OUPUT_PIN_GENERATE_PULSE();
+
+        TxData[0] = CYPRESS_BUTTON;
+        TxData[1] = VOLUME_DOWN;
+        if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+        {
+            /* Transfer error in transmission process */
+            logs_error("error transfer");
+        }
+    }
+
+    if((buffer & VOLUME_UP_BT))
+    {
+        logs("Button 2 TOUCHED");
         touched = 1;
 
         CLEAR_ALL_LEDS();
@@ -182,15 +201,15 @@ void DisplaySensorStatus(uint8_t buffer)
         }
     }
 
-    if((buffer & BUTTON_2))
+    if(buffer & MUTE_MIC_BT)
     {
-        logs("Button 2 TOUCHED");
+        logs("Button 3 TOUCHED");
         touched = 1;
 
-        gpo4_status = LED_BTN2_Status();
+        gpo5_status = LED_BTN3_Status();
         CLEAR_ALL_LEDS();
 
-        if(!gpo4_status)
+        if(!gpo5_status)
         {
             logs("microphone mute");
             //sending I2C data to Mainboard
@@ -221,32 +240,13 @@ void DisplaySensorStatus(uint8_t buffer)
 
     }
 
-    if(buffer & BUTTON_3)
-    {
-        logs("Button 3 TOUCHED");
-        touched = 1;
-
-        CLEAR_ALL_LEDS();
-
-        //sending I2C data to Mainboard
-        OUPUT_PIN_GENERATE_PULSE();
-
-        TxData[0] = CYPRESS_BUTTON;
-        TxData[1] = VOLUME_DOWN;
-        if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-        {
-            /* Transfer error in transmission process */
-            logs_error("error transfer");
-        }
-    }
-
-    if(buffer & BUTTON_4)
+    if(buffer & WAKEWORD_BT)
     {
         logs("Button 4 TOUCHED");
         touched = 1;
-        gpo4_status = LED_BTN2_Status();
+        gpo5_status = LED_BTN3_Status();
 
-        if(gpo4_status)
+        if(gpo5_status)
         {
             CLEAR_ALL_LEDS();
             WakeWord_Effect();
@@ -267,7 +267,7 @@ void DisplaySensorStatus(uint8_t buffer)
     }
 }
 
-uint8_t LED_BTN2_Status(void)
+uint8_t LED_BTN3_Status(void)
 {
     uint8_t gpo_state;
     uint8_t GPO_DATA_REG = (uint8_t)GPO_DATA;
@@ -284,7 +284,7 @@ uint8_t LED_BTN2_Status(void)
         logs_error("Read button status");
     }
 
-    gpo_state &= GPO_MASK(4);
+    gpo_state &= GPO_MASK(5);
 
     return gpo_state;
 }

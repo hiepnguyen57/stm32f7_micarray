@@ -120,10 +120,10 @@
 /* CYPRESS MBR3116 address (Default)*/
 #define MBR3_ADDR               0x6E
 
-#define BUTTON_1                0x08
-#define BUTTON_2                0x10
-#define BUTTON_3                0x20
-#define BUTTON_4                0x40
+#define VOLUME_DOWN_BT             0x08
+#define VOLUME_UP_BT               0x10
+#define MUTE_MIC_BT                0x20
+#define WAKEWORD_BT                0x40
 
 #define GPO_MASK(i)               (1 << i)
 typedef enum 
