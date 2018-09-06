@@ -461,7 +461,7 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-	setWHOLEcolor(10, 0, 0);
+	setWHOLEcolor(0, 10, 0);
 
 	/* PWM output */
 	PWMInit();
@@ -490,7 +490,6 @@ int main(void)
 #if DEBUG
 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
 					printf("%s\r\n", pUARTBuf);
-					setWHOLEcolor(10, 10, 10);
 #endif
 				}
 			}
