@@ -316,24 +316,23 @@ inline static void Audio_Play_Out(void)
 
 void Button_Event(uint8_t Command)
 {
-	uint8_t led_num;
+	uint8_t led_num = aRxBuffer[2] / 10 - 2;
+	uint8_t i;
 	switch(Command)
 	{
 		case VOLUME_UP:
-			CLEAR_ALL_LEDS();
-			for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+			for(i = 0; i < led_num; i++)
 			{
-				setLEDcolor(led_num, 100, 100, 100);
+				setLEDcolor(i, 100, 100, 100);
 			}
 			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
 			break;
 
 		case VOLUME_DOWN:
-			CLEAR_ALL_LEDS();
-			for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+			for(i = 0; i < led_num; i++)
 			{
-				setLEDcolor(led_num, 100, 100, 100);
+				setLEDcolor(i, 100, 100, 100);
 			}
 			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
@@ -348,9 +347,9 @@ void Button_Event(uint8_t Command)
 
 		case VOLUME_UNMUTE:
 			CLEAR_ALL_LEDS();
-			for(led_num = 0; led_num < aRxBuffer[2]; led_num++)
+			for(i = 0; i < led_num; i++)
 			{
-				setLEDcolor(led_num, 100, 100, 100);
+				setLEDcolor(i, 100, 100, 100);
 			}
 			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
@@ -484,14 +483,14 @@ int main(void)
 			if(!MIC_CHECK)
 			{
 				BF_Update();
-				if (flg10ms==1)
-				{
-					flg10ms=0;  
-#if DEBUG
-					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-					printf("%s\r\n", pUARTBuf);
-#endif
-				}
+// 				if (flg10ms==1)
+// 				{
+// 					flg10ms=0;  
+// #if DEBUG
+// 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+// 					printf("%s\r\n", pUARTBuf);
+// #endif
+// 				}
 			}
 
 		}
