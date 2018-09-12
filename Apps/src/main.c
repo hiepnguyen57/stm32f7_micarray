@@ -316,7 +316,8 @@ inline static void Audio_Play_Out(void)
 
 void Button_Event(uint8_t Command)
 {
-	uint8_t led_num = aRxBuffer[2] / 10 - 2;
+	static uint8_t led_num;
+	led_num = aRxBuffer[2] / 10 - 2;
 	uint8_t i;
 	switch(Command)
 	{
@@ -399,6 +400,21 @@ void User_Event(uint8_t Command)
 			CLEAR_ALL_LEDS();
 			MIC_CHECK = 0;
 			break;
+
+		// case RECORD_ERROR:
+		// 	CLEAR_ALL_LEDS();
+		// 	setWHOLEcolor(10, 0, 0);
+		// 	HAL_Delay(2000);
+		// 	CLEAR_ALL_LEDS();
+		// 	break;
+
+		// case BLE_ON:
+		// 	stripEffect_HeartBeat(1, 64, 0, 14);
+		// 	CLEAR_ALL_LEDS();
+		// 	break;
+
+		// case BLE_OFF:
+		// 	break;
 	}
 }
 
@@ -483,14 +499,14 @@ int main(void)
 			if(!MIC_CHECK)
 			{
 				BF_Update();
-// 				if (flg10ms==1)
-// 				{
-// 					flg10ms=0;  
-// #if DEBUG
-// 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-// 					printf("%s\r\n", pUARTBuf);
-// #endif
-// 				}
+				if (flg10ms==1)
+				{
+					flg10ms=0;  
+#if DEBUG
+					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+					printf("%s\r\n", pUARTBuf);
+#endif
+				}
 			}
 
 		}

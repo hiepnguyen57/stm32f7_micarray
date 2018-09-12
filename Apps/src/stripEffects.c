@@ -274,29 +274,29 @@ void stripEffect_HeartBeat(uint32_t interval, uint8_t red, uint8_t green,
 
 	setWHOLEcolor(0, 0, 0);
 
-	while (1) {
+	while (interval-- > 0) {
 		// first stroke
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(index * redInc, index * greenInc, index * blueInc);
-			HAL_Delay(interval);
+			HAL_Delay(14);
 		}
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(maxRed - index * redInc, maxGreen - index * greenInc,
 					maxBlue - index * blueInc);
-			HAL_Delay(interval);
+			HAL_Delay(16);
 		}
 		// second stroke
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(index * redInc, index * greenInc, index * blueInc);
-			HAL_Delay(interval);
+			HAL_Delay(18);
 		}
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(maxRed - index * redInc, maxGreen - index * greenInc,
 					maxBlue - index * blueInc);
-			HAL_Delay(interval);
+			HAL_Delay(20);
 		}
 		// relax..
-		HAL_Delay(500);
+		HAL_Delay(100);
 	}
 }
 
