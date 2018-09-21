@@ -10,7 +10,8 @@ extern I2C_HandleTypeDef hi2c1;
 
 uint8_t TxData[2];
 __IO ITStatus isVolumeBtInProcess = RESET;
-
+__IO ITStatus isRecordingBtInProcess = RESET;
+extern uint8_t MIC_CHECK;
 /* Above are the Command Codes used to configure MBR3*/
 uint8_t configData[129] = {
     //The below configuration array enables all 4 buttons, Host interrupt
@@ -154,7 +155,7 @@ CY8CMBR3116_Result ReadandDisplaySensorStatus(void)
 
 void DisplaySensorStatus(uint8_t buffer)
 {
-    static int touched=0, prox=0;
+    static uint8_t touched=0, prox=0;
     uint8_t gpo5_status;
 
     if(touched)
@@ -211,43 +212,55 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 3 TOUCHED");
         touched = 1;
-
-        gpo5_status = LED_BTN3_Status();
-        CLEAR_ALL_LEDS();
-
-        if(!gpo5_status)
-        {
-            logs("microphone mute");
-            //sending I2C data to Mainboard
-            OUPUT_PIN_GENERATE_PULSE();
-
-            TxData[0] = CYPRESS_BUTTON;
-            TxData[1] = MICROPHONE_MUTE;
-            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-            {
-                /* Transfer error in transmission process */
-                logs_error("error transfer");
-            }
+        if(isRecordingBtInProcess == SET) {
+            logs_error("typing at same time with wakeword bt");
         }
         else
         {
-            logs("microphone unmute");
-            //sending I2C data to Mainboard
-            OUPUT_PIN_GENERATE_PULSE();
+            gpo5_status = LED_BTN3_Status();
+            CLEAR_ALL_LEDS();
 
-            TxData[0] = CYPRESS_BUTTON;
-            TxData[1] = MICROPHONE_UNMUTE;
-            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            if(!gpo5_status)
             {
-                /* Transfer error in transmission process */
-                logs_error("error transfer");
+                logs("microphone mute");
+                CLEAR_ALL_LEDS();
+                setWHOLEcolor(100, 0, 0);
+                MIC_CHECK = 1;
+                //sending I2C data to Mainboard
+                //OUPUT_PIN_GENERATE_PULSE();
+                // TxData[0] = CYPRESS_BUTTON;
+                // TxData[1] = MICROPHONE_MUTE;
+                // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+                // {
+                //     /* Transfer error in transmission process */
+                //     logs_error("error transfer");
+                // }
+            }
+            else
+            {
+                logs("microphone unmute");
+                //sending I2C data to Mainboard
+                // OUPUT_PIN_GENERATE_PULSE();
+                // TxData[0] = CYPRESS_BUTTON;
+                // TxData[1] = MICROPHONE_UNMUTE;
+                // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+                // {
+                //     /* Transfer error in transmission process */
+                //     logs_error("error transfer");
+                // }
+                CLEAR_ALL_LEDS();
+                MIC_CHECK = 0;
             }
         }
+
+
+
 
     }
 
     if(buffer & WAKEWORD_BT)
     {
+        isRecordingBtInProcess = SET;
         logs("Button 4 TOUCHED");
         touched = 1;
         gpo5_status = LED_BTN3_Status();
@@ -269,7 +282,7 @@ void DisplaySensorStatus(uint8_t buffer)
                 logs_error("error transfer");
             }
         }
-
+        isRecordingBtInProcess = RESET;
     }
 }
 

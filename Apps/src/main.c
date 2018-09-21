@@ -360,16 +360,16 @@ void Button_Event(uint8_t Command)
 			CLEAR_ALL_LEDS();
 			break;
 
-		case MICROPHONE_MUTE:
-			CLEAR_ALL_LEDS();
-			setWHOLEcolor(100, 0, 0);
-			MIC_CHECK = 1;
-			break;
+		// case MICROPHONE_MUTE:
+		// 	CLEAR_ALL_LEDS();
+		// 	setWHOLEcolor(100, 0, 0);
+		// 	MIC_CHECK = 1;
+		// 	break;
 
-		case MICROPHONE_UNMUTE:
-			CLEAR_ALL_LEDS();
-			MIC_CHECK = 0;
-			break;
+		// case MICROPHONE_UNMUTE:
+		// 	CLEAR_ALL_LEDS();
+		// 	MIC_CHECK = 0;
+		// 	break;
 	}
 }
 
