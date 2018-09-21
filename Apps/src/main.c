@@ -119,6 +119,7 @@ uint8_t  pUARTBuf[128];
 #endif
 
 extern __IO uint16_t idxFrmUSB;
+extern __IO ITStatus isVolumeBtInProcess;
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -317,7 +318,7 @@ inline static void Audio_Play_Out(void)
 void Button_Event(uint8_t Command)
 {
 	static uint8_t led_num;
-	led_num = aRxBuffer[2] / 10 - 2;
+	led_num = ((aRxBuffer[2] - 30) / 10) * 2;
 	uint8_t i;
 	switch(Command)
 	{
@@ -328,6 +329,7 @@ void Button_Event(uint8_t Command)
 			}
 			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
+			isVolumeBtInProcess = RESET;
 			break;
 
 		case VOLUME_DOWN:
@@ -337,13 +339,15 @@ void Button_Event(uint8_t Command)
 			}
 			HAL_Delay(1000);
 			CLEAR_ALL_LEDS();
+			isVolumeBtInProcess = RESET;
 			break;
 
 		case VOLUME_MUTE:
 			CLEAR_ALL_LEDS();
 			setWHOLEcolor(100, 100, 0);
-			HAL_Delay(1000);
+			HAL_Delay(4000);
 			CLEAR_ALL_LEDS();
+			isVolumeBtInProcess = RESET;//for case volume below 30
 			break;
 
 		case VOLUME_UNMUTE:
@@ -374,7 +378,7 @@ void User_Event(uint8_t Command)
 	switch(Command)
 	{
 		case WAKE_WORD_STOP:
-			stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
+			//stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
 			CLEAR_ALL_LEDS();
 			break;
 
@@ -404,17 +408,23 @@ void User_Event(uint8_t Command)
 		// case RECORD_ERROR:
 		// 	CLEAR_ALL_LEDS();
 		// 	setWHOLEcolor(10, 0, 0);
-		// 	HAL_Delay(2000);
+		// 	HAL_Delay(3000);
 		// 	CLEAR_ALL_LEDS();
 		// 	break;
 
-		// case BLE_ON:
-		// 	stripEffect_HeartBeat(1, 64, 0, 14);
-		// 	CLEAR_ALL_LEDS();
-		// 	break;
+		case BLE_ON:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(0, 10, 0);
+			HAL_Delay(3000);
+			CLEAR_ALL_LEDS();
+			break;
 
-		// case BLE_OFF:
-		// 	break;
+		case BLE_OFF:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(10, 5, 0);
+			HAL_Delay(3000);
+			CLEAR_ALL_LEDS();
+			break;
 	}
 }
 
@@ -476,7 +486,7 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-	setWHOLEcolor(0, 10, 0);
+	setWHOLEcolor(10, 10, 10);
 
 	/* PWM output */
 	PWMInit();

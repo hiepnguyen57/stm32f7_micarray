@@ -9,6 +9,7 @@ extern I2C_HandleTypeDef hi2c1;
 #define WakeWord_Effect()           setWHOLEcolor(10, 100, 100)
 
 uint8_t TxData[2];
+__IO ITStatus isVolumeBtInProcess = RESET;
 
 /* Above are the Command Codes used to configure MBR3*/
 uint8_t configData[129] = {
@@ -167,17 +168,20 @@ void DisplaySensorStatus(uint8_t buffer)
         logs("Button 1 TOUCHED");
         touched = 1;
 
-        CLEAR_ALL_LEDS();
+        if(isVolumeBtInProcess == RESET) {
+            isVolumeBtInProcess = SET;
 
-        //sending I2C data to Mainboard
-        OUPUT_PIN_GENERATE_PULSE();
+            CLEAR_ALL_LEDS();
+            //sending I2C data to Mainboard
+            OUPUT_PIN_GENERATE_PULSE();
 
-        TxData[0] = CYPRESS_BUTTON;
-        TxData[1] = VOLUME_DOWN;
-        if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-        {
-            /* Transfer error in transmission process */
-            logs_error("error transfer");
+            TxData[0] = CYPRESS_BUTTON;
+            TxData[1] = VOLUME_DOWN;
+            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            {
+                /* Transfer error in transmission process */
+                logs_error("error transfer");
+            }
         }
     }
 
@@ -185,19 +189,22 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 2 TOUCHED");
         touched = 1;
+        if(isVolumeBtInProcess == RESET) {
+            isVolumeBtInProcess = SET;
 
-        CLEAR_ALL_LEDS();
+            CLEAR_ALL_LEDS();
+            //sending I2C data to Mainboard
+            OUPUT_PIN_GENERATE_PULSE();
 
-        //sending I2C data to Mainboard
-        OUPUT_PIN_GENERATE_PULSE();
-
-        TxData[0] = CYPRESS_BUTTON;
-        TxData[1] = VOLUME_UP;
-        if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-        {
-            /* Transfer error in transmission process */
-            logs_error("error transfer");
+            TxData[0] = CYPRESS_BUTTON;
+            TxData[1] = VOLUME_UP;
+            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            {
+                /* Transfer error in transmission process */
+                logs_error("error transfer");
+            }
         }
+
     }
 
     if(buffer & MUTE_MIC_BT)
