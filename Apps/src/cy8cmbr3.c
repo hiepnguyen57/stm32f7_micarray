@@ -212,77 +212,68 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 3 TOUCHED");
         touched = 1;
-        if(isRecordingBtInProcess == SET) {
-            logs_error("typing at same time with wakeword bt");
-        }
-        else
+        gpo5_status = LED_BTN3_Status();
+        CLEAR_ALL_LEDS();
+        if(!gpo5_status)
         {
-            gpo5_status = LED_BTN3_Status();
+            logs("microphone mute");
             CLEAR_ALL_LEDS();
-
-            if(!gpo5_status)
-            {
-                logs("microphone mute");
-                CLEAR_ALL_LEDS();
-                setWHOLEcolor(100, 0, 0);
-                MIC_CHECK = 1;
-                //sending I2C data to Mainboard
-                //OUPUT_PIN_GENERATE_PULSE();
-                // TxData[0] = CYPRESS_BUTTON;
-                // TxData[1] = MICROPHONE_MUTE;
-                // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-                // {
-                //     /* Transfer error in transmission process */
-                //     logs_error("error transfer");
-                // }
-            }
-            else
-            {
-                logs("microphone unmute");
-                //sending I2C data to Mainboard
-                // OUPUT_PIN_GENERATE_PULSE();
-                // TxData[0] = CYPRESS_BUTTON;
-                // TxData[1] = MICROPHONE_UNMUTE;
-                // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-                // {
-                //     /* Transfer error in transmission process */
-                //     logs_error("error transfer");
-                // }
-                CLEAR_ALL_LEDS();
-                MIC_CHECK = 0;
-            }
+            setWHOLEcolor(100, 0, 0);
+            MIC_CHECK = 1;
+            //sending I2C data to Mainboard
+            //OUPUT_PIN_GENERATE_PULSE();
+            // TxData[0] = CYPRESS_BUTTON;
+            // TxData[1] = MICROPHONE_MUTE;
+            // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            // {
+            //     /* Transfer error in transmission process */
+            //     logs_error("error transfer");
+            // }
         }
-
-
-
-
+        else {
+            logs("microphone unmute");
+            //sending I2C data to Mainboard
+            // OUPUT_PIN_GENERATE_PULSE();
+            // TxData[0] = CYPRESS_BUTTON;
+            // TxData[1] = MICROPHONE_UNMUTE;
+            // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            // {
+            //     /* Transfer error in transmission process */
+            //     logs_error("error transfer");
+            // }
+            CLEAR_ALL_LEDS();
+            MIC_CHECK = 0;
+        }
     }
 
     if(buffer & WAKEWORD_BT)
     {
-        isRecordingBtInProcess = SET;
-        logs("Button 4 TOUCHED");
-        touched = 1;
-        gpo5_status = LED_BTN3_Status();
-
-        if(gpo5_status)
+        if(isRecordingBtInProcess == RESET)
         {
-            CLEAR_ALL_LEDS();
-            WakeWord_Effect();
+            isRecordingBtInProcess = SET;
+            logs("Button 4 TOUCHED");
+            touched = 1;
+            gpo5_status = LED_BTN3_Status();
 
-            logs("microphone is working");
-            //sending I2C data to Mainboard
-            OUPUT_PIN_GENERATE_PULSE();
-
-            TxData[0] = CYPRESS_BUTTON;
-            TxData[1] = BT_WAKEWORD_START;
-            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            if(gpo5_status)
             {
-                /* Transfer error in transmission process */
-                logs_error("error transfer");
+                CLEAR_ALL_LEDS();
+                WakeWord_Effect();
+
+                logs("microphone is working");
+                //sending I2C data to Mainboard
+                OUPUT_PIN_GENERATE_PULSE();
+
+                TxData[0] = CYPRESS_BUTTON;
+                TxData[1] = BT_WAKEWORD_START;
+                if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+                {
+                    /* Transfer error in transmission process */
+                    logs_error("error transfer");
+                }
             }
+            isRecordingBtInProcess = RESET;
         }
-        isRecordingBtInProcess = RESET;
     }
 }
 
