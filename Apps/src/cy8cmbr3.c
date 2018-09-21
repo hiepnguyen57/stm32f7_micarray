@@ -11,7 +11,9 @@ extern I2C_HandleTypeDef hi2c1;
 uint8_t TxData[2];
 __IO ITStatus isVolumeBtInProcess = RESET;
 __IO ITStatus isRecordingBtInProcess = RESET;
-extern uint8_t MIC_CHECK;
+extern __IO uint8_t MIC_CHECK;
+extern __IO uint8_t BT_EVENTSTATE;
+
 /* Above are the Command Codes used to configure MBR3*/
 uint8_t configData[129] = {
     //The below configuration array enables all 4 buttons, Host interrupt
@@ -255,7 +257,7 @@ void DisplaySensorStatus(uint8_t buffer)
             touched = 1;
             gpo5_status = LED_BTN3_Status();
 
-            if(gpo5_status)
+            if((gpo5_status) && BT_EVENTSTATE == 0)
             {
                 CLEAR_ALL_LEDS();
                 WakeWord_Effect();

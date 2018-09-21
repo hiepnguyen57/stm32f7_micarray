@@ -65,11 +65,9 @@
 #define I2C_ADDRESS 			0xD0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint8_t aTxBuffer[] = "Hello Worldd";
-uint8_t aRxBuffer[RXBUFFERSIZE];
+uint8_t aTxBuffer[3];
+uint8_t aRxBuffer[3];
 CY8CMBR3116_Result result;
-uint8_t STATE = 0;
-uint8_t MIC_CHECK = 0;
 LPTIM_HandleTypeDef             LptimHandle;
 
 extern Mic_Array_Data Buffer1,Buffer2,Buffer3;
@@ -120,6 +118,9 @@ uint8_t  pUARTBuf[128];
 
 extern __IO uint16_t idxFrmUSB;
 extern __IO ITStatus isVolumeBtInProcess;
+__IO uint8_t BT_EVENTSTATE = 0;
+__IO uint8_t MIC_CHECK = 0;
+uint8_t Ex_Buffer[3];
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -345,7 +346,7 @@ void Button_Event(uint8_t Command)
 		case VOLUME_MUTE:
 			CLEAR_ALL_LEDS();
 			setWHOLEcolor(100, 100, 0);
-			HAL_Delay(4000);
+			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			isVolumeBtInProcess = RESET;//for case volume below 30
 			break;
@@ -378,7 +379,7 @@ void User_Event(uint8_t Command)
 	switch(Command)
 	{
 		case WAKE_WORD_STOP:
-			//stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
+			stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
 			CLEAR_ALL_LEDS();
 			break;
 
@@ -390,7 +391,7 @@ void User_Event(uint8_t Command)
 		case WIFI_CONNECTED:
 			CLEAR_ALL_LEDS();
 			setWHOLEcolor(0, 255, 0);
-			HAL_Delay(3000);
+			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			break;
 
@@ -415,14 +416,14 @@ void User_Event(uint8_t Command)
 		case BLE_ON:
 			CLEAR_ALL_LEDS();
 			setWHOLEcolor(0, 10, 0);
-			HAL_Delay(3000);
+			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			break;
 
 		case BLE_OFF:
 			CLEAR_ALL_LEDS();
 			setWHOLEcolor(10, 5, 0);
-			HAL_Delay(3000);
+			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			break;
 	}
@@ -504,7 +505,7 @@ int main(void)
 
 	while(1)
 	{
-		if(STATE == 0)
+		if(BT_EVENTSTATE == 0)
 		{
 			if(!MIC_CHECK)
 			{
@@ -522,8 +523,13 @@ int main(void)
 		}
 		else
 		{
+			//backup old buffer
+			Ex_Buffer[0] = aRxBuffer[0];
+			Ex_Buffer[1] = aRxBuffer[1];
 			Control_Handler();
-			STATE = 0;
+			if((Ex_Buffer[0] == aRxBuffer[0]) && Ex_Buffer[1] == aRxBuffer[1]) {
+				BT_EVENTSTATE = 0;
+			}
 		}
 	}
 }
@@ -896,7 +902,7 @@ void EXTI9_5_IRQHandler(void)
 				printf("%#x\r\n", aRxBuffer[1]);
 				printf("%#x\r\n", aRxBuffer[2]);
 		}
-		STATE = 1;
+		BT_EVENTSTATE = 1;
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
 	HAL_GPIO_EXTI_Callback(GPIO_PIN_7);
