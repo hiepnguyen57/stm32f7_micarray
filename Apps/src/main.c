@@ -318,9 +318,9 @@ inline static void Audio_Play_Out(void)
 
 void Button_Event(uint8_t Command)
 {
-	static uint8_t led_num;
-	led_num = ((aRxBuffer[2] - 30) / 10) * 2;
+	uint8_t led_num;
 	uint8_t i;
+	led_num = ((aRxBuffer[2] - 20) / 10) * 2;
 	switch(Command)
 	{
 		case VOLUME_UP:
@@ -348,7 +348,7 @@ void Button_Event(uint8_t Command)
 			setWHOLEcolor(100, 100, 0);
 			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
-			isVolumeBtInProcess = RESET;//for case volume below 30
+			isVolumeBtInProcess = RESET;//for case volume below 20%
 			break;
 
 		case VOLUME_UNMUTE:
@@ -357,7 +357,7 @@ void Button_Event(uint8_t Command)
 			{
 				setLEDcolor(i, 100, 100, 100);
 			}
-			HAL_Delay(1000);
+			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			break;
 
@@ -523,7 +523,7 @@ int main(void)
 		}
 		else
 		{
-			//backup old buffer
+			//backup buffer
 			Ex_Buffer[0] = aRxBuffer[0];
 			Ex_Buffer[1] = aRxBuffer[1];
 			Control_Handler();
