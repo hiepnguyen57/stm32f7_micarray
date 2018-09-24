@@ -321,17 +321,18 @@ void Button_Event(uint8_t Command)
 	uint8_t led_num;
 	uint8_t i;
 	led_num = ((aRxBuffer[2] - 20) / 10) * 2;
+	printf("led num: %d\r\n", led_num);
 	switch(Command)
 	{
 		case VOLUME_UP:
-			for(i = 0; i < led_num; i++)
-			{
-				setLEDcolor(i, 100, 100, 100);
-			}
-			HAL_Delay(1000);
-			CLEAR_ALL_LEDS();
-			isVolumeBtInProcess = RESET;
-			break;
+			// for(i = 0; i < led_num; i++)
+			// {
+			// 	setLEDcolor(i, 100, 100, 100);
+			// }
+			// HAL_Delay(1000);
+			// CLEAR_ALL_LEDS();
+			// isVolumeBtInProcess = RESET;
+			// break;
 
 		case VOLUME_DOWN:
 			for(i = 0; i < led_num; i++)
@@ -900,7 +901,7 @@ void EXTI9_5_IRQHandler(void)
 		{
 				printf("%#x\r\n", aRxBuffer[0]);
 				printf("%#x\r\n", aRxBuffer[1]);
-				printf("%#x\r\n", aRxBuffer[2]);
+				printf("%d\r\n", aRxBuffer[2]);
 		}
 		BT_EVENTSTATE = 1;
 	}
