@@ -1,5 +1,6 @@
 #include "stripEffects.h"
-
+#define BREAKSTATE 		0x39
+extern uint8_t StopEffect;
 extern void setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN,
 		uint8_t BLUE);
 
@@ -209,7 +210,7 @@ void stripEffect_AllColors(uint32_t interval) {
 	uint32_t index = 0;
 	uint32_t led;
 
-	while (interval-- > 0) {
+	while(StopEffect != BREAKSTATE) {
 		for (led = 0; led < LED_NUMBER; led++)
 			setLEDcolor(led, colorsFull[index + led][0],
 					colorsFull[index + led][1], colorsFull[index + led][2]);
@@ -227,7 +228,7 @@ void stripEffect_ColorWheel(uint32_t interval) {
 	uint32_t index = 0;
 	uint32_t led, colorIndex;
 
-	while (1) {
+	while (StopEffect != BREAKSTATE) {
 		for (led = 0; led < LED_NUMBER; led++)
 		{
 			colorIndex = (index + led * (766 / LED_NUMBER)) % 766;
@@ -244,7 +245,7 @@ void stripEffect_CircularRing(uint32_t interval, uint8_t red, uint8_t green,
 		uint8_t blue) {
 	uint32_t index = 0;
 
-	while (interval-- > 0) {
+	while (StopEffect != BREAKSTATE) {
 		setWHOLEcolor(0, 0, 0);
 		setLEDcolor(index, red, green, blue);
 		index++;
@@ -252,11 +253,11 @@ void stripEffect_CircularRing(uint32_t interval, uint8_t red, uint8_t green,
 		if (index >= LED_NUMBER)
 			index = 0;
 
-		HAL_Delay(50);
+		HAL_Delay(interval);
 	}
 }
 
-// the interval should be in the 100-1000 range for best visual effect
+// the interval should be in the 300-1000 range for best visual effect
 void stripEffect_HeartBeat(uint32_t interval, uint8_t red, uint8_t green,
 		uint8_t blue) {
 	uint8_t redInc, greenInc, blueInc;
@@ -274,29 +275,29 @@ void stripEffect_HeartBeat(uint32_t interval, uint8_t red, uint8_t green,
 
 	setWHOLEcolor(0, 0, 0);
 
-	while (interval-- > 0) {
+	while (StopEffect != BREAKSTATE) {
 		// first stroke
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(index * redInc, index * greenInc, index * blueInc);
-			HAL_Delay(14);
+			HAL_Delay(interval / 50);
 		}
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(maxRed - index * redInc, maxGreen - index * greenInc,
 					maxBlue - index * blueInc);
-			HAL_Delay(16);
+			HAL_Delay(interval / 45);
 		}
 		// second stroke
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(index * redInc, index * greenInc, index * blueInc);
-			HAL_Delay(18);
+			HAL_Delay(interval / 40);
 		}
 		for (index = 0; index < HEARTBEAT_STEPS; index++) {
 			setWHOLEcolor(maxRed - index * redInc, maxGreen - index * greenInc,
 					maxBlue - index * blueInc);
-			HAL_Delay(20);
+			HAL_Delay(interval / 35);
 		}
 		// relax..
-		HAL_Delay(100);
+		HAL_Delay(interval);
 	}
 }
 
@@ -310,7 +311,7 @@ void stripEffect_PatternMove(uint32_t interval, uint32_t parts, uint8_t red,
 
 	setWHOLEcolor(0, 0, 0);
 
-	while (1) {
+	while (StopEffect != BREAKSTATE) {
 		setWHOLEcolor(0, 0, 0);
 		for (i = 0; i < parts; i++)
 			setLEDcolor(index + i * indexStep, red, green, blue);
@@ -329,7 +330,7 @@ void stripEffect_FullEmpty(uint32_t interval, uint8_t red, uint8_t green,
 
 	setWHOLEcolor(0, 0, 0);
 
-	while (1) {
+	while (StopEffect != BREAKSTATE) {
 		for (index = 0; index < LED_NUMBER; index++) {
 			setLEDcolor(index, red, green, blue);
 			HAL_Delay(interval);

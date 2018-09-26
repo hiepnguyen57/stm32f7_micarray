@@ -20,14 +20,20 @@
 #define MICROPHONE_UNMUTE	0x27
 
 #define LED_DIMMING			0x30
-#define LED_PATTERN			0x31
-#define LED_WAITING			0x32
-#define LED_WW_START		0x33
-#define LED_WW_STOP			0x34
+#define LED_CIRCLE			0x31
+#define LED_EMPTY			0x32
+#define LED_ALLCOLORS 		0x33
+#define LED_PATTERN 		0x34
+#define COLOR_WHEEL 		0x35
+#define CLEAN_ALL			0x36
+#define LED_START			0x38
+#define LED_STOP			0x39
+
 
 #define WIFI_CONNECTED		0x40
 #define WIFI_DISCONNECTED	0x41
 #define RECORD_ERROR		0x42
 #define BLE_ON				0x43
 #define BLE_OFF				0x44
+
 #endif /* __COMMAND_H */

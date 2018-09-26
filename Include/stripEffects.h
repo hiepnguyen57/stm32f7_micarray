@@ -3,8 +3,8 @@
 
 #include "main.h"
 #include "ws281x.h"
-#define CLEAR_ALL_LEDS()      setWHOLEcolor(0, 0, 0)
-#define HEARTBEAT_STEPS		50
+#define CLEAR_ALL_LEDS()		setWHOLEcolor(0, 0, 0)
+#define HEARTBEAT_STEPS			16
 
 void stripEffect_CircularRing(uint32_t interval, uint8_t red, uint8_t green,
 		uint8_t blue);

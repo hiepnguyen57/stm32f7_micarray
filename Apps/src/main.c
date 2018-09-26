@@ -72,16 +72,16 @@ LPTIM_HandleTypeDef             LptimHandle;
 
 extern Mic_Array_Data Buffer1,Buffer2,Buffer3;
 
-extern uint16_t WaveRecord_flgIni;
-extern uint32_t EnergySound,EnergyError;
+//extern uint16_t WaveRecord_flgIni;
+//extern uint32_t EnergySound,EnergyError;
 
-extern __IO int16_t SPI1_stNipple,I2S1_stNipple, I2S2_stNipple,SPI4_stNipple;
-extern __IO   uint8_t I2S1_stPosShft,I2S2_stPosShft,SPI4_stPosShft;
+//extern __IO int16_t SPI1_stNipple,I2S1_stNipple, I2S2_stNipple,SPI4_stNipple;
+//extern __IO   uint8_t I2S1_stPosShft,I2S2_stPosShft,SPI4_stPosShft;
 extern USBD_AUDIO_ItfTypeDef  USBD_AUDIO_fops;
-extern __IO uint8_t  swtBufUSBOut;
+//extern __IO uint8_t  swtBufUSBOut;
 extern __IO uint8_t flgRacing;
-extern __IO GPIO_PinState stMIC56;
-extern __IO GPIO_PinState stMIC56Old;
+//extern __IO GPIO_PinState stMIC56;
+//extern __IO GPIO_PinState stMIC56Old;
 
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c4;
@@ -121,6 +121,7 @@ extern __IO ITStatus isVolumeBtInProcess;
 __IO uint8_t BT_EVENTSTATE = 0;
 __IO uint8_t MIC_CHECK = 0;
 uint8_t Ex_Buffer[3];
+uint8_t StopEffect = 0;
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -316,6 +317,40 @@ inline static void Audio_Play_Out(void)
 	}
 }
 
+void LedRing_Event(uint8_t Command)
+{
+	switch(Command)
+	{
+		case CLEAN_ALL:
+			CLEAR_ALL_LEDS();
+			break;
+
+		case LED_DIMMING:
+			stripEffect_HeartBeat(700, 64, 0, 16);
+			break;
+
+		case LED_CIRCLE:
+			stripEffect_CircularRing(50, 0, 0, 20);
+			break;
+
+		case LED_PATTERN:
+			stripEffect_PatternMove(50, 2, 10, 10, 10);
+			break;
+
+		case COLOR_WHEEL:
+			stripEffect_ColorWheel(50);
+			break;
+
+		case LED_ALLCOLORS:
+			stripEffect_AllColors(10);
+			break;
+
+		case LED_EMPTY:
+			stripEffect_FullEmpty(50, 20, 20, 20);
+			break;
+	}
+}
+
 void Button_Event(uint8_t Command)
 {
 	uint8_t led_num;
@@ -435,6 +470,7 @@ void Control_Handler(void)
 	switch(aRxBuffer[0])
 	{
 		case LED_RING:
+			LedRing_Event(aRxBuffer[1]);
 			break;
 		case MIC_ARRAY:
 			break;
@@ -488,10 +524,10 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-	setWHOLEcolor(10, 10, 10);
+	setWHOLEcolor(100, 100, 100);
 
 	/* PWM output */
-	PWMInit();
+	//PWMInit();
 
 	/* Init Superdirective Beamforming */
 	BeamFormingSD_Init();
@@ -901,7 +937,11 @@ void EXTI9_5_IRQHandler(void)
 		{
 				printf("%#x\r\n", aRxBuffer[0]);
 				printf("%#x\r\n", aRxBuffer[1]);
-				printf("%d\r\n", aRxBuffer[2]);
+				if(aRxBuffer[0] == LED_RING)
+				{
+					StopEffect = aRxBuffer[2];
+				}
+				printf("%#x\r\n", aRxBuffer[2]);
 		}
 		BT_EVENTSTATE = 1;
 	}
