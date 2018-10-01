@@ -65,8 +65,8 @@
 #define I2C_ADDRESS 			0xD0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint8_t aTxBuffer[3];
-uint8_t aRxBuffer[3];
+uint8_t aTxBuffer[4];
+uint8_t aRxBuffer[4];
 CY8CMBR3116_Result result;
 LPTIM_HandleTypeDef             LptimHandle;
 
@@ -324,7 +324,6 @@ void LedRing_Event(uint8_t Command)
 		case CLEAN_ALL:
 			CLEAR_ALL_LEDS();
 			break;
-
 		case LED_DIMMING:
 			stripEffect_HeartBeat(700, 64, 0, 16);
 			break;
@@ -346,7 +345,7 @@ void LedRing_Event(uint8_t Command)
 			break;
 
 		case LED_EMPTY:
-			stripEffect_FullEmpty(50, 20, 20, 20);
+			stripEffect_FullEmpty(50, 100, 100, 100);
 			break;
 	}
 }
@@ -480,6 +479,9 @@ void Control_Handler(void)
 		case USER_EVENT:
 			User_Event(aRxBuffer[1]);
 			break;
+		// case LED_RGB:
+		// 	setWHOLEcolor(aRxBuffer[1], aRxBuffer[2], aRxBuffer[3]);
+		// 	break;
 		default:
 			logs("Nothing");
 			break;
@@ -525,7 +527,6 @@ int main(void)
 	/* Configure LED RING */
 	ws281x_init();
 	setWHOLEcolor(100, 100, 100);
-
 	/* PWM output */
 	//PWMInit();
 
@@ -558,13 +559,13 @@ int main(void)
 			}
 
 		}
-		else
-		{
+		else {
 			//backup buffer
 			Ex_Buffer[0] = aRxBuffer[0];
 			Ex_Buffer[1] = aRxBuffer[1];
 			Control_Handler();
-			if((Ex_Buffer[0] == aRxBuffer[0]) && Ex_Buffer[1] == aRxBuffer[1]) {
+			if((Ex_Buffer[0] == aRxBuffer[0]) && Ex_Buffer[1] == aRxBuffer[1])
+			{
 				BT_EVENTSTATE = 0;
 			}
 		}

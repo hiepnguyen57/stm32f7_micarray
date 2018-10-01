@@ -26,6 +26,7 @@
 #define LED_PATTERN 		0x34
 #define COLOR_WHEEL 		0x35
 #define CLEAN_ALL			0x36
+#define LED_RGB 			0x37
 #define LED_START			0x38
 #define LED_STOP			0x39
 
