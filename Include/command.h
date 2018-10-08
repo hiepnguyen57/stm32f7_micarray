@@ -36,5 +36,6 @@
 #define RECORD_ERROR		0x42
 #define BLE_ON				0x43
 #define BLE_OFF				0x44
-
+#define USB_AUDIO			0x45
+#define CLIENT_ERROR		0x46
 #endif /* __COMMAND_H */

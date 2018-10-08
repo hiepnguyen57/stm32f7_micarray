@@ -324,6 +324,7 @@ void LedRing_Event(uint8_t Command)
 		case CLEAN_ALL:
 			CLEAR_ALL_LEDS();
 			break;
+
 		case LED_DIMMING:
 			stripEffect_HeartBeat(700, 64, 0, 16);
 			break;
@@ -345,7 +346,7 @@ void LedRing_Event(uint8_t Command)
 			break;
 
 		case LED_EMPTY:
-			stripEffect_FullEmpty(50, 100, 100, 100);
+			stripEffect_FullEmpty(80, 100, 100, 100);
 			break;
 	}
 }
@@ -420,12 +421,12 @@ void User_Event(uint8_t Command)
 
 		case WIFI_DISCONNECTED:
 			CLEAR_ALL_LEDS();
-			setWHOLEcolor(255, 128, 0);
+			setWHOLEcolor(208, 119, 11);
 			break;
 
 		case WIFI_CONNECTED:
 			CLEAR_ALL_LEDS();
-			setWHOLEcolor(0, 255, 0);
+			setWHOLEcolor(0, 178, 11);
 			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			break;
@@ -460,6 +461,17 @@ void User_Event(uint8_t Command)
 			setWHOLEcolor(10, 5, 0);
 			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
+			break;
+
+		case USB_AUDIO:
+			CLEAR_ALL_LEDS();
+			/* 2 channels:16Khz Audio USB */
+			USB_Audio_Config();
+			break;
+
+		case CLIENT_ERROR:
+			CLEAR_ALL_LEDS();
+			setWHOLEcolor(223, 0, 41);
 			break;
 	}
 }
@@ -527,6 +539,7 @@ int main(void)
 	/* Configure LED RING */
 	ws281x_init();
 	setWHOLEcolor(100, 100, 100);
+
 	/* PWM output */
 	//PWMInit();
 
@@ -534,7 +547,7 @@ int main(void)
 	BeamFormingSD_Init();
 
 	/* 2 channels:16Khz Audio USB */
-	USB_Audio_Config();
+	//USB_Audio_Config();
 
 	__disable_irq();
 	MIC1TO6_Init();

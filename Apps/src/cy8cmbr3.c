@@ -174,7 +174,6 @@ void DisplaySensorStatus(uint8_t buffer)
         if(isVolumeBtInProcess == RESET) {
             isVolumeBtInProcess = SET;
 
-            CLEAR_ALL_LEDS();
             //sending I2C data to Mainboard
             OUPUT_PIN_GENERATE_PULSE();
 
@@ -195,7 +194,6 @@ void DisplaySensorStatus(uint8_t buffer)
         if(isVolumeBtInProcess == RESET) {
             isVolumeBtInProcess = SET;
 
-            CLEAR_ALL_LEDS();
             //sending I2C data to Mainboard
             OUPUT_PIN_GENERATE_PULSE();
 
