@@ -87,13 +87,21 @@ void _Error_Handler(char *, int);
 # define logs_error(fmt) do {} while (0)
 #endif
 
-#define CPU_OUTPUT_PIN               GPIO_PIN_0
-#define CPU_OUTPUT_GPIO_PORT         GPIOE
-#define CPU_OUTPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOE_CLK_ENABLE()
+#define CPU_OUTPUT_PIN               GPIO_PIN_3
+#define CPU_OUTPUT_GPIO_PORT         GPIOD
+#define CPU_OUTPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOD_CLK_ENABLE()
 
-#define CPU_INPUT_PIN               GPIO_PIN_7
-#define CPU_INPUT_GPIO_PORT         GPIOB
-#define CPU_INPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOB_CLK_ENABLE()
+#define CPU_INPUT_PIN               GPIO_PIN_2
+#define CPU_INPUT_GPIO_PORT         GPIOD
+#define CPU_INPUT_GPIO_CLK_ENABLE() __HAL_RCC_GPIOD_CLK_ENABLE()
+
+#define PWR_LEDRING_PIN               GPIO_PIN_14
+#define PWR_LEDRING_GPIO_PORT         GPIOE
+#define PWR_LEDRING_GPIO_CLK_ENABLE() __HAL_RCC_GPIOE_CLK_ENABLE()
+
+#define CY8C_RESET_PIN                GPIO_PIN_1
+#define CY8C_RESET_GPIO_PORT          GPIOB
+#define CY8C_RESET_GPIO_CLK_ENABLE()  __HAL_RCC_GPIOB_CLK_ENABLE()
 
 //export function
 void OUPUT_PIN_GENERATE_PULSE(void);

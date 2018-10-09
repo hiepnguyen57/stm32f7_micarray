@@ -63,7 +63,9 @@ void OTG_FS_IRQHandler(void);
 void OTG_HS_IRQHandler(void);
 #endif
 
-void EXTI0_IRQHandler(void);
+void EXTI1_IRQHandler(void);
+void EXTI2_IRQHandler(void);
+
 void USARTx_IRQHandler(void);
 void I2Cx_MASTER_DMA_RX_IRQHandler(void);
 void I2Cx_MASTER_DMA_TX_IRQHandler(void);
@@ -72,8 +74,6 @@ void I2Cx_MASTER_ER_IRQHandler(void);
 void I2Cx_CPU_EV_IRQHandler(void);
 void I2Cx_CPU_ER_IRQHandler(void);
 
-void EXTI9_5_IRQHandler(void);
-void EXTI2_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
 void DMA2_Stream6_IRQHandler(void);
 void DMA2_Stream5_IRQHandler(void);

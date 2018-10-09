@@ -330,7 +330,8 @@ void stripEffect_FullEmpty(uint32_t interval, uint8_t red, uint8_t green,
 
 	setWHOLEcolor(0, 0, 0);
 
-	while (StopEffect != BREAKSTATE) {
+	while (StopEffect != BREAKSTATE)
+	{
 		for (index = 0; index < LED_NUMBER; index++) {
 			setLEDcolor(index, red, green, blue);
 			HAL_Delay(interval);

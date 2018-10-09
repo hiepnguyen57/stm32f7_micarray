@@ -62,20 +62,19 @@ uint8_t LED_BTN3_Status(void);
 
 void MBR3_HOST_INT_Config(void)
 {
-    GPIO_InitTypeDef    GPIO_InitStructure;
+   GPIO_InitTypeDef    GPIO_InitStructure;
 
-    /* Enable GPIOB clock */
-    __HAL_RCC_GPIOB_CLK_ENABLE();
+   /* Enable GPIOD clock */
+   __HAL_RCC_GPIOD_CLK_ENABLE();
 
-    /* Configure PB0 pin as input floating */
-    GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStructure.Pull = GPIO_NOPULL;
-    GPIO_InitStructure.Pin  = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+   /* Configure PD1 pin as input floating */
+   GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
+   GPIO_InitStructure.Pull = GPIO_NOPULL;
+   GPIO_InitStructure.Pin  = GPIO_PIN_1;
+   HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-    /* Enable adn set EXTI Line0 Interrupt to the lowest priority */
-    HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+   HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 }
 
 CY8CMBR3116_Result ConfigureMBR3(void)
@@ -171,7 +170,8 @@ void DisplaySensorStatus(uint8_t buffer)
         logs("Button 1 TOUCHED");
         touched = 1;
 
-        if(isVolumeBtInProcess == RESET) {
+        if(isVolumeBtInProcess == RESET)
+        {
             isVolumeBtInProcess = SET;
 
             //sending I2C data to Mainboard
@@ -191,7 +191,8 @@ void DisplaySensorStatus(uint8_t buffer)
     {
         logs("Button 2 TOUCHED");
         touched = 1;
-        if(isVolumeBtInProcess == RESET) {
+        if(isVolumeBtInProcess == RESET)
+        {
             isVolumeBtInProcess = SET;
 
             //sending I2C data to Mainboard

@@ -131,7 +131,7 @@ static void USB_Audio_Config(void);
 void PWMInit(void);
 void I2C1_Init(void);
 void I2C4_Init(void);
-void GPIO_INT_Init(void);
+void MX_GPIO_Init(void);
 void Control_Handler(void);
 /* Private functions ---------------------------------------------------------*/
 void OUPUT_PIN_GENERATE_PULSE(void)
@@ -519,11 +519,11 @@ int main(void)
 	/* Pin configuration for audio */
 	Codec_GPIO_Init();
 
-	/* Configure EXTI Line0 (connected to PB0 pin) in interrupt mode */
+	/* Configure GPIO */
 	MBR3_HOST_INT_Config();
-	GPIO_INT_Init();
+	MX_GPIO_Init();
 
-	//Config i2c bus
+	//Configure I2C bus
 	I2C1_Init();
 	I2C4_Init();
 
@@ -811,38 +811,40 @@ void I2C4_Init(void)
 	HAL_I2CEx_ConfigAnalogFilter(&hi2c4, I2C_ANALOGFILTER_ENABLE);
 }
 
-void GPIO_INT_Init(void)
+void MX_GPIO_Init(void)
 {
-    GPIO_InitTypeDef    GPIO_Init;
+   GPIO_InitTypeDef    GPIO_Init;
 
-    CPU_INPUT_GPIO_CLK_ENABLE();
-    CPU_OUTPUT_GPIO_CLK_ENABLE();
+   CPU_INPUT_GPIO_CLK_ENABLE();
+   CPU_OUTPUT_GPIO_CLK_ENABLE();
+    CY8C_RESET_GPIO_CLK_ENABLE();
 
-    //fixed error cut PD0 line
-	__HAL_RCC_GPIOD_CLK_ENABLE();
+    // Configure PD3 as output pin
+   GPIO_Init.Pin   = CPU_OUTPUT_PIN;
+   GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
+   GPIO_Init.Pull  = GPIO_PULLUP;
+   GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+   HAL_GPIO_Init(CPU_OUTPUT_GPIO_PORT, &GPIO_Init);
 
-	// Configure PE0 as output pin
-    GPIO_Init.Pin   = CPU_OUTPUT_PIN;
-    GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_Init.Pull  = GPIO_PULLUP;
-    GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(CPU_OUTPUT_GPIO_PORT, &GPIO_Init);
+   /* Configure PD2 pin as input floating */
+   GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
+   GPIO_Init.Pull = GPIO_NOPULL;
+   GPIO_Init.Pin  = CPU_INPUT_PIN;
+   HAL_GPIO_Init(CPU_INPUT_GPIO_PORT, &GPIO_Init);
 
-    /* Configure PB7 pin as input floating */
-    GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_Init.Pull = GPIO_NOPULL;
-    GPIO_Init.Pin  = CPU_INPUT_PIN;
-    HAL_GPIO_Init(CPU_INPUT_GPIO_PORT, &GPIO_Init);
+   /* Configure PE14 as output pin */
+   GPIO_Init.Pin  = PWR_LEDRING_PIN;
+   GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
+   GPIO_Init.Pull = GPIO_PULLUP;
+   GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+   HAL_GPIO_Init(PWR_LEDRING_GPIO_PORT, &GPIO_Init);
 
-    //fixed error cut PD0 line, remove in new version
-    GPIO_Init.Mode = GPIO_MODE_INPUT;
-    GPIO_Init.Pull = GPIO_NOPULL;
-    GPIO_Init.Pin  = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOD, &GPIO_Init);
+   //LED_RING_PWR is set to 1
+   HAL_GPIO_WritePin(PWR_LEDRING_GPIO_PORT, PWR_LEDRING_PIN, GPIO_PIN_SET);
 
-    /* Enable adn set EXTI Line7 Interrupt */
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 1);
-    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+   //enable line 2 interrupt
+   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
+   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 }
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
@@ -914,53 +916,52 @@ void EXTI4_IRQHandler(void)
 
 
 /**
-  * @brief  This function handles External line 0 interrupt request.
+  * @brief  This function handles External line 1 interrupt request.
   * @param  None
   * @retval None
   */
-void EXTI0_IRQHandler(void)
+void EXTI1_IRQHandler(void)
 {
-	/* EXTI line 0 interrupt detected */
-	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
-	{
-		//Read button status
-		result = ReadandDisplaySensorStatus();
-		if(result != CY8CMBR3116_Result_OK)
-		{
-			logs_error("CYPRESS read status");
-		}
-	}
-	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-	HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
-
+    /* EXTI line 1 interrupt detected */
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
+    {
+        //Read button status
+        result = ReadandDisplaySensorStatus();
+        if(result != CY8CMBR3116_Result_OK)
+        {
+            logs_error("CYPRESS read status");
+        }
+    }
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
+    HAL_GPIO_EXTI_Callback(GPIO_PIN_1);
 }
 
 /**
-  * @brief  This function handles External line [9:5] interrupt request.
+  * @brief  This function handles External line 2 interrupt request.
   * @param  None
   * @retval None
   */
-void EXTI9_5_IRQHandler(void)
+void EXTI2_IRQHandler(void)
 {
-	/* EXTI line 7 interrupt detected */
-	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
-	{
-		//receiving data from Mainboard
-		logs("Receive I2C Data from Mainboard");
-		if(HAL_I2C_Slave_Receive(&hi2c4, (uint8_t *)aRxBuffer, 3, 10000) == HAL_OK)
-		{
-				printf("%#x\r\n", aRxBuffer[0]);
-				printf("%#x\r\n", aRxBuffer[1]);
-				if(aRxBuffer[0] == LED_RING)
-				{
-					StopEffect = aRxBuffer[2];
-				}
-				printf("%#x\r\n", aRxBuffer[2]);
-		}
-		BT_EVENTSTATE = 1;
-	}
-	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
-	HAL_GPIO_EXTI_Callback(GPIO_PIN_7);
+    /* EXTI line 2 interrupt detected */
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
+    {
+        //receiving data from Mainboard
+        logs("Receive I2C Data from Mainboard");
+        if(HAL_I2C_Slave_Receive(&hi2c4, (uint8_t *)aRxBuffer, 3, 10000) == HAL_OK)
+        {
+            printf("%#x\r\n", aRxBuffer[0]);
+            printf("%#x\r\n", aRxBuffer[1]);
+            if(aRxBuffer[0] == LED_RING)
+			{
+				StopEffect = aRxBuffer[2];
+			}
+            printf("%#x\r\n", aRxBuffer[2]);
+        }
+        BT_EVENTSTATE = 1;
+    }
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
+    HAL_GPIO_EXTI_Callback(GPIO_PIN_2);
 
 }
 
