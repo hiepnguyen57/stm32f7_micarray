@@ -947,16 +947,16 @@ void EXTI2_IRQHandler(void)
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
     {
         //receiving data from Mainboard
-        logs("Receive I2C Data from Mainboard");
-        if(HAL_I2C_Slave_Receive(&hi2c4, (uint8_t *)aRxBuffer, 3, 10000) == HAL_OK)
+        //logs("Receive I2C Data from Mainboard");
+        if(HAL_I2C_Slave_Receive_IT(&hi2c4, (uint8_t *)aRxBuffer, 3) == HAL_OK)
         {
-            printf("%#x\r\n", aRxBuffer[0]);
-            printf("%#x\r\n", aRxBuffer[1]);
+            //printf("%#x\r\n", aRxBuffer[0]);
+            //printf("%#x\r\n", aRxBuffer[1]);
             if(aRxBuffer[0] == LED_RING)
 			{
 				StopEffect = aRxBuffer[2];
 			}
-            printf("%#x\r\n", aRxBuffer[2]);
+            //printf("%#x\r\n", aRxBuffer[2]);
         }
         BT_EVENTSTATE = 1;
     }

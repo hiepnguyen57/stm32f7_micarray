@@ -73,7 +73,7 @@ void MBR3_HOST_INT_Config(void)
    GPIO_InitStructure.Pin  = GPIO_PIN_1;
    HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+   HAL_NVIC_SetPriority(EXTI1_IRQn, 1, 0);
    HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 }
 
@@ -162,10 +162,9 @@ void DisplaySensorStatus(uint8_t buffer)
     if(touched)
     {
         touched = 0;
-        logs("Button released");
+        //logs("Button released");
     }
-
-    if(buffer & VOLUME_DOWN_BT)
+    else if(buffer & VOLUME_DOWN_BT)
     {
         logs("Button 1 TOUCHED");
         touched = 1;
@@ -179,15 +178,14 @@ void DisplaySensorStatus(uint8_t buffer)
 
             TxData[0] = CYPRESS_BUTTON;
             TxData[1] = VOLUME_DOWN;
-            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            if(HAL_I2C_Slave_Transmit_IT(&hi2c4, (uint8_t*)TxData, 2)!= HAL_OK)
             {
                 /* Transfer error in transmission process */
                 logs_error("error transfer");
             }
         }
     }
-
-    if((buffer & VOLUME_UP_BT))
+    else if((buffer & VOLUME_UP_BT))
     {
         logs("Button 2 TOUCHED");
         touched = 1;
@@ -200,16 +198,14 @@ void DisplaySensorStatus(uint8_t buffer)
 
             TxData[0] = CYPRESS_BUTTON;
             TxData[1] = VOLUME_UP;
-            if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+            if(HAL_I2C_Slave_Transmit_IT(&hi2c4, (uint8_t*)TxData, 2)!= HAL_OK)
             {
                 /* Transfer error in transmission process */
                 logs_error("error transfer");
             }
         }
-
     }
-
-    if(buffer & MUTE_MIC_BT)
+    else if(buffer & MUTE_MIC_BT)
     {
         logs("Button 3 TOUCHED");
         touched = 1;
@@ -221,53 +217,34 @@ void DisplaySensorStatus(uint8_t buffer)
             CLEAR_ALL_LEDS();
             setWHOLEcolor(100, 0, 0);
             MIC_CHECK = 1;
-            //sending I2C data to Mainboard
-            //OUPUT_PIN_GENERATE_PULSE();
-            // TxData[0] = CYPRESS_BUTTON;
-            // TxData[1] = MICROPHONE_MUTE;
-            // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-            // {
-            //     /* Transfer error in transmission process */
-            //     logs_error("error transfer");
-            // }
         }
         else {
             logs("microphone unmute");
-            //sending I2C data to Mainboard
-            // OUPUT_PIN_GENERATE_PULSE();
-            // TxData[0] = CYPRESS_BUTTON;
-            // TxData[1] = MICROPHONE_UNMUTE;
-            // if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
-            // {
-            //     /* Transfer error in transmission process */
-            //     logs_error("error transfer");
-            // }
             CLEAR_ALL_LEDS();
             MIC_CHECK = 0;
         }
     }
-
-    if(buffer & WAKEWORD_BT)
+    else if(buffer & WAKEWORD_BT)
     {
+        //logs("Button 4 TOUCHED");
+        touched = 1;
         if(isRecordingBtInProcess == RESET)
         {
             isRecordingBtInProcess = SET;
-            logs("Button 4 TOUCHED");
-            touched = 1;
-            gpo5_status = LED_BTN3_Status();
 
+            gpo5_status = LED_BTN3_Status();
             if((gpo5_status) && BT_EVENTSTATE == 0)
             {
                 CLEAR_ALL_LEDS();
                 WakeWord_Effect();
 
-                logs("microphone is working");
+                //logs("microphone is working");
                 //sending I2C data to Mainboard
                 OUPUT_PIN_GENERATE_PULSE();
 
                 TxData[0] = CYPRESS_BUTTON;
                 TxData[1] = BT_WAKEWORD_START;
-                if(HAL_I2C_Slave_Transmit(&hi2c4, (uint8_t*)TxData, 2, 10000)!= HAL_OK)
+                if(HAL_I2C_Slave_Transmit_IT(&hi2c4, (uint8_t*)TxData, 2) != HAL_OK)
                 {
                     /* Transfer error in transmission process */
                     logs_error("error transfer");
