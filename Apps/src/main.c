@@ -374,21 +374,23 @@ void Button_Event(uint8_t Command)
 	}
 	else 
 		led_num = ((aRxBuffer[2] - 20) / 10) * 2;
-	printf("led num: %d\r\n", led_num);
+	//printf("led num: %d\r\n", led_num);
 	switch(Command)
 	{
 		case VOLUME_UP:
+			__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
 			for(i = 0; i < led_num; i++)
 			{
 				setLEDcolor(i, 100, 100, 100);
 			}
 			isVolumeBtInProcess = RESET;
 			prev_lednum = led_num;
-			//HAL_TIM_Base_Start_IT(&htim3);
+			HAL_TIM_Base_Start_IT(&htim3);
 			break;
 
 		case VOLUME_DOWN:
-			printf("prev led: %d\r\n", prev_lednum);
+			__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
+			//printf("prev led: %d\r\n", prev_lednum);
 			if(prev_lednum == 0)
 			{
 				for(i = 0; i < led_num; i++)
@@ -401,6 +403,7 @@ void Button_Event(uint8_t Command)
 				{
 					setLEDcolor(i, 100, 100, 100);
 				}
+				HAL_Delay(10);
 				for(i = led_num; i < prev_lednum; i++)
 				{
 					setLEDcolor(i, 0, 0, 0);
@@ -408,7 +411,7 @@ void Button_Event(uint8_t Command)
 				prev_lednum = led_num;
 			}
 			isVolumeBtInProcess = RESET;
-			//HAL_TIM_Base_Start_IT(&htim3);
+			HAL_TIM_Base_Start_IT(&htim3);
 			break;
 
 		case VOLUME_MUTE:
@@ -917,7 +920,7 @@ void TIM3_Init(void)
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
-    /* Initialization Error */
+     /* Initialization Error */
     _Error_Handler(__FILE__, __LINE__);
   }
 
@@ -1060,9 +1063,9 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 	{
 		StopEffect = aRxBuffer[2];
 	}
-    printf("buffer0: %#x\r\n", aRxBuffer[0]);
-    printf("buffer1: %#x\r\n", aRxBuffer[1]);
-    printf("buffer2: %#x\r\n", aRxBuffer[2]);
+    // printf("buffer0: %#x\r\n", aRxBuffer[0]);
+    // printf("buffer1: %#x\r\n", aRxBuffer[1]);
+    // printf("buffer2: %#x\r\n", aRxBuffer[2]);
     BT_EVENTSTATE = 1;
 }
 /**
@@ -1096,7 +1099,7 @@ void TIM3_IRQHandler(void)
   if(volume_count == 5)
   {
   	volume_count = 0;
-  	printf("clear led volume \r\n");
+  	CLEAR_ALL_LEDS();
   	HAL_TIM_Base_Stop_IT(&htim3);
   }
 
