@@ -162,7 +162,7 @@ void DisplaySensorStatus(uint8_t buffer)
 	if(touched)
 	{
 		touched = 0;
-		//logs("Button released");
+		logs("Button released");
 
 		//clear all led
 		LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_RESET);
@@ -237,7 +237,7 @@ void DisplaySensorStatus(uint8_t buffer)
 	}
 	else if(buffer & WAKEWORD_BT)
 	{
-		//logs("Button 4 TOUCHED");
+		logs("Button 4 TOUCHED");
 		touched = 1;
 		if(isRecordingBtInProcess == RESET)
 		{
@@ -250,7 +250,7 @@ void DisplaySensorStatus(uint8_t buffer)
 				CLEAR_ALL_LEDS();
 				WakeWord_Effect();
 
-				//logs("microphone is working");
+				logs("record now!!!");
 				//sending I2C data to Mainboard
 				OUPUT_PIN_GENERATE_PULSE();
 

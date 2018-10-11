@@ -110,6 +110,7 @@ void _Error_Handler(char *, int);
 #define CY8C_PROX_LED_PIN             GPIO_PIN_4
 #define CY8C_LED_GPIO_PORT            GPIOG
 #define CY8C_LED_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOG_CLK_ENABLE()
+
 //export function
 void OUPUT_PIN_GENERATE_PULSE(void);
 void LEDx_OnOff(uint16_t led, uint8_t state);

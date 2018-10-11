@@ -86,6 +86,11 @@ extern __IO uint8_t flgRacing;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c4;
 
+/* TIM handle declaration */
+TIM_HandleTypeDef htim3;
+/* Prescaler declaration */
+uint32_t uwPrescalerValue = 0;
+
 USBH_HandleTypeDef hUSBHost;
 USBD_HandleTypeDef hUSBDDevice;
 AUDIO_ApplicationTypeDef appli_state = APPLICATION_IDLE;//APPLICATION_IDLE
@@ -122,6 +127,7 @@ __IO uint8_t BT_EVENTSTATE = 0;
 __IO uint8_t MIC_CHECK = 0;
 uint8_t Ex_Buffer[3];
 uint8_t StopEffect = 0;
+uint8_t volume_count = 0;
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -133,6 +139,7 @@ void I2C1_Init(void);
 void I2C4_Init(void);
 void MX_GPIO_Init(void);
 void Control_Handler(void);
+void TIM3_Init(void);
 /* Private functions ---------------------------------------------------------*/
 void OUPUT_PIN_GENERATE_PULSE(void)
 {
@@ -359,29 +366,49 @@ void LedRing_Event(uint8_t Command)
 void Button_Event(uint8_t Command)
 {
 	uint8_t led_num;
+	static uint8_t prev_lednum = 0;
 	uint8_t i;
-	led_num = ((aRxBuffer[2] - 20) / 10) * 2;
+	//printf("volume: %d\r\n", aRxBuffer[2]);
+	if(aRxBuffer[2] == 0) {
+		led_num = 0;
+	}
+	else 
+		led_num = ((aRxBuffer[2] - 20) / 10) * 2;
 	printf("led num: %d\r\n", led_num);
 	switch(Command)
 	{
 		case VOLUME_UP:
-			// for(i = 0; i < led_num; i++)
-			// {
-			// 	setLEDcolor(i, 100, 100, 100);
-			// }
-			// HAL_Delay(1000);
-			// CLEAR_ALL_LEDS();
-			// isVolumeBtInProcess = RESET;
-			// break;
-
-		case VOLUME_DOWN:
 			for(i = 0; i < led_num; i++)
 			{
 				setLEDcolor(i, 100, 100, 100);
 			}
-			HAL_Delay(1000);
-			CLEAR_ALL_LEDS();
 			isVolumeBtInProcess = RESET;
+			prev_lednum = led_num;
+			//HAL_TIM_Base_Start_IT(&htim3);
+			break;
+
+		case VOLUME_DOWN:
+			printf("prev led: %d\r\n", prev_lednum);
+			if(prev_lednum == 0)
+			{
+				for(i = 0; i < led_num; i++)
+				{
+					setLEDcolor(i, 100, 100, 100);
+				}
+			}
+			else {
+				for(i = 0; i < prev_lednum; i++)
+				{
+					setLEDcolor(i, 100, 100, 100);
+				}
+				for(i = led_num; i < prev_lednum; i++)
+				{
+					setLEDcolor(i, 0, 0, 0);
+				}
+				prev_lednum = led_num;
+			}
+			isVolumeBtInProcess = RESET;
+			//HAL_TIM_Base_Start_IT(&htim3);
 			break;
 
 		case VOLUME_MUTE:
@@ -469,7 +496,6 @@ void User_Event(uint8_t Command)
 			break;
 
 		case USB_AUDIO:
-			CLEAR_ALL_LEDS();
 			/* 2 channels:16Khz Audio USB */
 			USB_Audio_Config();
 			LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_SET);
@@ -481,6 +507,8 @@ void User_Event(uint8_t Command)
 			LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_RESET);
 			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_RESET);
 			LEDx_OnOff(CY8C_LED4_PIN, GPIO_PIN_RESET);
+
+			CLEAR_ALL_LEDS();
 			break;
 
 		case CLIENT_ERROR:
@@ -553,7 +581,7 @@ int main(void)
 	/* Configure LED RING */
 	ws281x_init();
 	setWHOLEcolor(100, 100, 100);
-
+	TIM3_Init();
 	/* PWM output */
 	//PWMInit();
 
@@ -579,8 +607,8 @@ int main(void)
 				{
 					flg10ms=0;  
 #if DEBUG
-					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-					printf("%s\r\n", pUARTBuf);
+					//sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+					//printf("%s\r\n", pUARTBuf);
 #endif
 				}
 			}
@@ -868,6 +896,36 @@ void MX_GPIO_Init(void)
 	HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
 	HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 }
+void TIM3_Init(void)
+{
+	  __HAL_RCC_TIM3_CLK_ENABLE();
+  /* Compute the prescaler value to have TIMx counter clock equal to 10000 Hz */
+  uwPrescalerValue = (uint32_t)((SystemCoreClock / 2) / 10000) - 1;
+  /* Set TIMx instance */
+  htim3.Instance = TIM3;
+  /* Initialize TIMx peripheral as follows:
+       + Period = 10000 - 1
+       + Prescaler = ((SystemCoreClock / 2)/10000) - 1
+       + ClockDivision = 0
+       + Counter direction = Up
+  */
+  htim3.Init.Period            = 10000 - 1;
+  htim3.Init.Prescaler         = uwPrescalerValue;
+  htim3.Init.ClockDivision     = 0;
+  htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  htim3.Init.RepetitionCounter = 0;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    /* Initialization Error */
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
+
+  /* Enable the TIMx global Interrupt */
+  HAL_NVIC_EnableIRQ(TIM3_IRQn);
+}
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
@@ -968,25 +1026,81 @@ void EXTI2_IRQHandler(void)
     /* EXTI line 2 interrupt detected */
     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
     {
+    	/* Wait for the end of the last transfer */
+    	while (HAL_I2C_GetState(&hi2c4) != HAL_I2C_STATE_READY)
+  		{
+  		}
         //receiving data from Mainboard
         //logs("Receive I2C Data from Mainboard");
-        if(HAL_I2C_Slave_Receive_IT(&hi2c4, (uint8_t *)aRxBuffer, 3) == HAL_OK)
+        while(HAL_I2C_Slave_Receive_IT(&hi2c4, (uint8_t *)aRxBuffer, 3) != HAL_OK)
         {
-            //printf("%#x\r\n", aRxBuffer[0]);
-            //printf("%#x\r\n", aRxBuffer[1]);
-            if(aRxBuffer[0] == LED_RING)
-			{
-				StopEffect = aRxBuffer[2];
-			}
-            //printf("%#x\r\n", aRxBuffer[2]);
+        	/* Error_Handler() function is called when Timeout error occurs.
+       		When Acknowledge failure occurs (Slave don't acknowledge it's address)
+       		Master restarts communication */
+    		if (HAL_I2C_GetError(&hi2c4) != HAL_I2C_ERROR_AF)
+    		{
+        		_Error_Handler(__FILE__, __LINE__);
+    		}
         }
-        BT_EVENTSTATE = 1;
     }
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
     HAL_GPIO_EXTI_Callback(GPIO_PIN_2);
 
 }
 
+void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
+{
+  /* Transfer in transmission process is correct */
+}
+
+void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
+{
+  /* Transfer in reception process is correct */
+	if(aRxBuffer[0] == LED_RING)
+	{
+		StopEffect = aRxBuffer[2];
+	}
+    printf("buffer0: %#x\r\n", aRxBuffer[0]);
+    printf("buffer1: %#x\r\n", aRxBuffer[1]);
+    printf("buffer2: %#x\r\n", aRxBuffer[2]);
+    BT_EVENTSTATE = 1;
+}
+/**
+  * @brief  I2C error callbacks.
+  * @param  I2cHandle: I2C handle
+  * @note   This example shows a simple way to report transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
+{
+  /** Error_Handler() function is called when error occurs.
+    * 1- When Slave don't acknowledge it's address, Master restarts communication.
+    * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
+    */
+  if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief  This function handles TIM interrupt request.
+  * @param  None
+  * @retval None
+  */
+void TIM3_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&htim3);
+  volume_count++;
+  if(volume_count == 5)
+  {
+  	volume_count = 0;
+  	printf("clear led volume \r\n");
+  	HAL_TIM_Base_Stop_IT(&htim3);
+  }
+
+}
 
 static void USB_Audio_Config(void)
 {
