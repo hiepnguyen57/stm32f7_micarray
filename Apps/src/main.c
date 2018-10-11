@@ -140,6 +140,11 @@ void OUPUT_PIN_GENERATE_PULSE(void)
 	HAL_GPIO_WritePin(CPU_OUTPUT_GPIO_PORT, CPU_OUTPUT_PIN, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(CPU_OUTPUT_GPIO_PORT, CPU_OUTPUT_PIN, GPIO_PIN_SET);
 }
+
+void LEDx_OnOff(uint16_t led, uint8_t state)
+{
+	HAL_GPIO_WritePin(CY8C_LED_GPIO_PORT, led, state);
+}
 /*--------------INLINE FUNCTION-----------------------------------------------*/
 inline static void BF_Update(void)
 {       
@@ -467,6 +472,15 @@ void User_Event(uint8_t Command)
 			CLEAR_ALL_LEDS();
 			/* 2 channels:16Khz Audio USB */
 			USB_Audio_Config();
+			LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_SET);
+			LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_SET);
+			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_SET);
+			LEDx_OnOff(CY8C_LED4_PIN, GPIO_PIN_SET);
+			HAL_Delay(1500);
+			LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_RESET);
+			LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_RESET);
+			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_RESET);
+			LEDx_OnOff(CY8C_LED4_PIN, GPIO_PIN_RESET);
 			break;
 
 		case CLIENT_ERROR:
@@ -681,42 +695,41 @@ void SystemClock_Config(void)
 
 void BSP_AUDIO_OUT_ClockConfig(uint32_t AudioFreq, void *Params)
 {
-  RCC_PeriphCLKInitTypeDef RCC_ExCLKInitStruct;
+	RCC_PeriphCLKInitTypeDef RCC_ExCLKInitStruct;
 
-  HAL_RCCEx_GetPeriphCLKConfig(&RCC_ExCLKInitStruct);
-  
-  /* Set the PLL configuration according to the audio frequency */
-  if((AudioFreq == AUDIO_FREQUENCY_11K) || (AudioFreq == AUDIO_FREQUENCY_22K) || (AudioFreq == AUDIO_FREQUENCY_44K))
-  {
-	/* Configure PLLSAI prescalers */
-	/* PLLI2S_VCO: VCO_429M
-	SAI_CLK(first level) = PLLI2S_VCO/PLLSAIQ = 429/2 = 214.5 Mhz
-	SAI_CLK_x = SAI_CLK(first level)/PLLI2SDivQ = 214.5/19 = 11.289 Mhz */
-	RCC_ExCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SAI2;
-	RCC_ExCLKInitStruct.Sai2ClockSelection = RCC_SAI2CLKSOURCE_PLLI2S;
-	RCC_ExCLKInitStruct.PLLI2S.PLLI2SP = 8;
-	RCC_ExCLKInitStruct.PLLI2S.PLLI2SN = 429;
-	RCC_ExCLKInitStruct.PLLI2S.PLLI2SQ = 2;
-	RCC_ExCLKInitStruct.PLLI2SDivQ = 19;
-	HAL_RCCEx_PeriphCLKConfig(&RCC_ExCLKInitStruct);
-  }
-  else /* AUDIO_FREQUENCY_8K, AUDIO_FREQUENCY_16K, AUDIO_FREQUENCY_48K), AUDIO_FREQUENCY_96K */
-  {
-	/* SAI clock config
-	PLLI2S_VCO: VCO_344M
-	SAI_CLK(first level) = PLLI2S_VCO/PLLSAIQ = 344/7 = 49.142 Mhz
-	SAI_CLK_x = SAI_CLK(first level)/PLLI2SDivQ = 49.142/1 = 49.142 Mhz */
-	RCC_ExCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SAI2;
-	RCC_ExCLKInitStruct.Sai2ClockSelection = RCC_SAI2CLKSOURCE_PLLI2S;
-	//RCC_ExCLKInitStruct.I2sClockSelection = RCC_I2SCLKSOURCE_PLLI2S;
-	//RCC_ExCLKInitStruct.PLLI2S.PLLI2SP = 8;
-	RCC_ExCLKInitStruct.PLLI2S.PLLI2SN = 344;//244
-	RCC_ExCLKInitStruct.PLLI2S.PLLI2SQ = 7;
-	//RCC_ExCLKInitStruct.PLLI2S.PLLI2SR = 1;
-	RCC_ExCLKInitStruct.PLLI2SDivQ = 1;
-	HAL_RCCEx_PeriphCLKConfig(&RCC_ExCLKInitStruct);
-  }
-  
+	HAL_RCCEx_GetPeriphCLKConfig(&RCC_ExCLKInitStruct);
+
+	/* Set the PLL configuration according to the audio frequency */
+	if((AudioFreq == AUDIO_FREQUENCY_11K) || (AudioFreq == AUDIO_FREQUENCY_22K) || (AudioFreq == AUDIO_FREQUENCY_44K))
+	{
+		/* Configure PLLSAI prescalers */
+		/* PLLI2S_VCO: VCO_429M
+		SAI_CLK(first level) = PLLI2S_VCO/PLLSAIQ = 429/2 = 214.5 Mhz
+		SAI_CLK_x = SAI_CLK(first level)/PLLI2SDivQ = 214.5/19 = 11.289 Mhz */
+		RCC_ExCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SAI2;
+		RCC_ExCLKInitStruct.Sai2ClockSelection = RCC_SAI2CLKSOURCE_PLLI2S;
+		RCC_ExCLKInitStruct.PLLI2S.PLLI2SP = 8;
+		RCC_ExCLKInitStruct.PLLI2S.PLLI2SN = 429;
+		RCC_ExCLKInitStruct.PLLI2S.PLLI2SQ = 2;
+		RCC_ExCLKInitStruct.PLLI2SDivQ = 19;
+		HAL_RCCEx_PeriphCLKConfig(&RCC_ExCLKInitStruct);
+	}
+	else /* AUDIO_FREQUENCY_8K, AUDIO_FREQUENCY_16K, AUDIO_FREQUENCY_48K), AUDIO_FREQUENCY_96K */
+	{
+		/* SAI clock config
+		PLLI2S_VCO: VCO_344M
+		SAI_CLK(first level) = PLLI2S_VCO/PLLSAIQ = 344/7 = 49.142 Mhz
+		SAI_CLK_x = SAI_CLK(first level)/PLLI2SDivQ = 49.142/1 = 49.142 Mhz */
+		RCC_ExCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SAI2;
+		RCC_ExCLKInitStruct.Sai2ClockSelection = RCC_SAI2CLKSOURCE_PLLI2S;
+		//RCC_ExCLKInitStruct.I2sClockSelection = RCC_I2SCLKSOURCE_PLLI2S;
+		//RCC_ExCLKInitStruct.PLLI2S.PLLI2SP = 8;
+		RCC_ExCLKInitStruct.PLLI2S.PLLI2SN = 344;//244
+		RCC_ExCLKInitStruct.PLLI2S.PLLI2SQ = 7;
+		//RCC_ExCLKInitStruct.PLLI2S.PLLI2SR = 1;
+		RCC_ExCLKInitStruct.PLLI2SDivQ = 1;
+		HAL_RCCEx_PeriphCLKConfig(&RCC_ExCLKInitStruct);
+	}
 }
 
 /**
@@ -813,38 +826,47 @@ void I2C4_Init(void)
 
 void MX_GPIO_Init(void)
 {
-   GPIO_InitTypeDef    GPIO_Init;
+	GPIO_InitTypeDef    GPIO_Init;
 
-   CPU_INPUT_GPIO_CLK_ENABLE();
-   CPU_OUTPUT_GPIO_CLK_ENABLE();
-    CY8C_RESET_GPIO_CLK_ENABLE();
+	CPU_INPUT_GPIO_CLK_ENABLE();
+	CPU_OUTPUT_GPIO_CLK_ENABLE();
+	CY8C_RESET_GPIO_CLK_ENABLE();
+	CY8C_LED_GPIO_CLK_ENABLE();
 
-    // Configure PD3 as output pin
-   GPIO_Init.Pin   = CPU_OUTPUT_PIN;
-   GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
-   GPIO_Init.Pull  = GPIO_PULLUP;
-   GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-   HAL_GPIO_Init(CPU_OUTPUT_GPIO_PORT, &GPIO_Init);
+	 // Configure PD3 as output pin
+	GPIO_Init.Pin   = CPU_OUTPUT_PIN;
+	GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
+	GPIO_Init.Pull  = GPIO_PULLUP;
+	GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	HAL_GPIO_Init(CPU_OUTPUT_GPIO_PORT, &GPIO_Init);
 
-   /* Configure PD2 pin as input floating */
-   GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
-   GPIO_Init.Pull = GPIO_NOPULL;
-   GPIO_Init.Pin  = CPU_INPUT_PIN;
-   HAL_GPIO_Init(CPU_INPUT_GPIO_PORT, &GPIO_Init);
+	/* Configure PD2 pin as input floating */
+	GPIO_Init.Mode = GPIO_MODE_IT_FALLING;
+	GPIO_Init.Pull = GPIO_NOPULL;
+	GPIO_Init.Pin  = CPU_INPUT_PIN;
+	HAL_GPIO_Init(CPU_INPUT_GPIO_PORT, &GPIO_Init);
 
-   /* Configure PE14 as output pin */
-   GPIO_Init.Pin  = PWR_LEDRING_PIN;
-   GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
-   GPIO_Init.Pull = GPIO_PULLUP;
-   GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-   HAL_GPIO_Init(PWR_LEDRING_GPIO_PORT, &GPIO_Init);
+	/* Configure PE14 as output pin */
+	GPIO_Init.Pin  = PWR_LEDRING_PIN;
+	GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
+	GPIO_Init.Pull = GPIO_PULLUP;
+	GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	HAL_GPIO_Init(PWR_LEDRING_GPIO_PORT, &GPIO_Init);
 
-   //LED_RING_PWR is set to 1
-   HAL_GPIO_WritePin(PWR_LEDRING_GPIO_PORT, PWR_LEDRING_PIN, GPIO_PIN_SET);
+	//LED_RING_PWR is set to 1
+	HAL_GPIO_WritePin(PWR_LEDRING_GPIO_PORT, PWR_LEDRING_PIN, GPIO_PIN_SET);
 
-   //enable line 2 interrupt
-   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
-   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+	// Configure LEDs
+	GPIO_Init.Pin   = CY8C_LED1_PIN | CY8C_LED2_PIN | CY8C_LED3_PIN
+						| CY8C_LED4_PIN | CY8C_PROX_LED_PIN;
+	GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
+	GPIO_Init.Pull  = GPIO_PULLUP;
+	GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	HAL_GPIO_Init(CY8C_LED_GPIO_PORT, &GPIO_Init);
+
+	//Enable line 2 interrupt
+	HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
+	HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 }
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)

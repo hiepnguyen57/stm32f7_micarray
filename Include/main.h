@@ -103,8 +103,17 @@ void _Error_Handler(char *, int);
 #define CY8C_RESET_GPIO_PORT          GPIOB
 #define CY8C_RESET_GPIO_CLK_ENABLE()  __HAL_RCC_GPIOB_CLK_ENABLE()
 
+#define CY8C_LED1_PIN                 GPIO_PIN_0
+#define CY8C_LED2_PIN                 GPIO_PIN_1
+#define CY8C_LED3_PIN                 GPIO_PIN_2
+#define CY8C_LED4_PIN                 GPIO_PIN_3
+#define CY8C_PROX_LED_PIN             GPIO_PIN_4
+#define CY8C_LED_GPIO_PORT            GPIOG
+#define CY8C_LED_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOG_CLK_ENABLE()
 //export function
 void OUPUT_PIN_GENERATE_PULSE(void);
+void LEDx_OnOff(uint16_t led, uint8_t state);
+
 #endif /* __MAIN_H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
