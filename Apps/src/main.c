@@ -378,7 +378,7 @@ void Button_Event(uint8_t Command)
 	switch(Command)
 	{
 		case VOLUME_UP:
-			__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
+			volume_count = 0;
 			for(i = 0; i < led_num; i++)
 			{
 				setLEDcolor(i, 100, 100, 100);
@@ -389,8 +389,8 @@ void Button_Event(uint8_t Command)
 			break;
 
 		case VOLUME_DOWN:
-			__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
 			//printf("prev led: %d\r\n", prev_lednum);
+			volume_count = 0;
 			if(prev_lednum == 0)
 			{
 				for(i = 0; i < led_num; i++)
@@ -408,9 +408,9 @@ void Button_Event(uint8_t Command)
 				{
 					setLEDcolor(i, 0, 0, 0);
 				}
-				prev_lednum = led_num;
 			}
 			isVolumeBtInProcess = RESET;
+			prev_lednum = led_num;
 			HAL_TIM_Base_Start_IT(&htim3);
 			break;
 
@@ -606,14 +606,14 @@ int main(void)
 			if(!MIC_CHECK)
 			{
 				BF_Update();
-				if (flg10ms==1)
-				{
-					flg10ms=0;  
-#if DEBUG
-					//sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-					//printf("%s\r\n", pUARTBuf);
-#endif
-				}
+// 				if (flg10ms==1)
+// 				{
+// 					flg10ms=0;  
+// #if DEBUG
+// 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+// 					printf("%s\r\n", pUARTBuf);
+// #endif
+// 				}
 			}
 
 		}
@@ -1048,7 +1048,6 @@ void EXTI2_IRQHandler(void)
     }
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
     HAL_GPIO_EXTI_Callback(GPIO_PIN_2);
-
 }
 
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
@@ -1066,6 +1065,9 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
     // printf("buffer0: %#x\r\n", aRxBuffer[0]);
     // printf("buffer1: %#x\r\n", aRxBuffer[1]);
     // printf("buffer2: %#x\r\n", aRxBuffer[2]);
+    // printf("buffer2: %d\r\n", aRxBuffer[2]);
+
+    //pause mic-array
     BT_EVENTSTATE = 1;
 }
 /**
@@ -1100,6 +1102,7 @@ void TIM3_IRQHandler(void)
   {
   	volume_count = 0;
   	CLEAR_ALL_LEDS();
+  	//printf("clear led_num \r\n");
   	HAL_TIM_Base_Stop_IT(&htim3);
   }
 
