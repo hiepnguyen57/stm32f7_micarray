@@ -329,6 +329,49 @@ inline static void Audio_Play_Out(void)
 	}
 }
 
+void WakeWordLedStop(uint16_t interval, uint8_t looptime, uint8_t red,
+	uint8_t green, uint8_t blue) {
+	uint8_t redInc, greenInc, blueInc;
+	uint8_t maxRed, maxGreen, maxBlue;
+
+	redInc = red / HEARTBEAT_STEPS;
+	greenInc = green / HEARTBEAT_STEPS;
+	blueInc = blue / HEARTBEAT_STEPS;
+
+	maxRed = redInc * (HEARTBEAT_STEPS - 1);
+	maxGreen = greenInc * (HEARTBEAT_STEPS - 1);
+	maxBlue = blueInc * (HEARTBEAT_STEPS - 1);
+
+	uint32_t index;
+
+	setWHOLEcolor(0, 0, 0);
+
+		while (looptime-- > 0) {
+		// first stroke
+		for (index = 0; index < HEARTBEAT_STEPS; index++) {
+			setWHOLEcolor(index * redInc, index * greenInc, index * blueInc);
+			HAL_Delay(interval / 50);
+		}
+		for (index = 0; index < HEARTBEAT_STEPS; index++) {
+			setWHOLEcolor(maxRed - index * redInc, maxGreen - index * greenInc,
+					maxBlue - index * blueInc);
+			HAL_Delay(interval / 45);
+		}
+		// second stroke
+		for (index = 0; index < HEARTBEAT_STEPS; index++) {
+			setWHOLEcolor(index * redInc, index * greenInc, index * blueInc);
+			HAL_Delay(interval / 40);
+		}
+		for (index = 0; index < HEARTBEAT_STEPS; index++) {
+			setWHOLEcolor(maxRed - index * redInc, maxGreen - index * greenInc,
+					maxBlue - index * blueInc);
+			HAL_Delay(interval / 35);
+		}
+		// relax..
+		HAL_Delay(100);
+	}
+}
+
 void LedRing_Event(uint8_t Command)
 {
 	switch(Command)
@@ -358,7 +401,7 @@ void LedRing_Event(uint8_t Command)
 			break;
 
 		case LED_EMPTY:
-			stripEffect_FullEmpty(80, 100, 100, 100);
+			stripEffect_FullEmpty(80, 10, 100, 100);
 			break;
 	}
 }
@@ -450,8 +493,8 @@ void User_Event(uint8_t Command)
 	switch(Command)
 	{
 		case WAKE_WORD_STOP:
-			stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
-			CLEAR_ALL_LEDS();
+			//stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
+			WakeWordLedStop(700, 1, 10, 100, 100);
 			break;
 
 		case WIFI_DISCONNECTED:
@@ -501,6 +544,7 @@ void User_Event(uint8_t Command)
 		case USB_AUDIO:
 			/* 2 channels:16Khz Audio USB */
 			USB_Audio_Config();
+
 			LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_SET);
 			LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_SET);
 			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_SET);
@@ -585,6 +629,7 @@ int main(void)
 	ws281x_init();
 	setWHOLEcolor(100, 100, 100);
 	TIM3_Init();
+
 	/* PWM output */
 	//PWMInit();
 
