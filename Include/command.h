@@ -33,7 +33,7 @@
 
 #define WIFI_CONNECTED		0x40
 #define WIFI_DISCONNECTED	0x41
-#define RECORD_ERROR		0x42
+#define ERROR_RECORD		0x42
 #define BLE_ON				0x43
 #define BLE_OFF				0x44
 #define USB_AUDIO			0x45

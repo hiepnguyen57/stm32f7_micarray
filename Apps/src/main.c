@@ -61,7 +61,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define I2CX_TIMING             0x40912732 //0x40912732 //0x00303D5D; 0x00A0689A
+#define I2CX_TIMING 			0x40912732 //0x40912732 //0x00303D5D; 0x00A0689A
 #define I2C_ADDRESS 			0xD0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -154,7 +154,7 @@ void LEDx_OnOff(uint16_t led, uint8_t state)
 }
 /*--------------INLINE FUNCTION-----------------------------------------------*/
 inline static void BF_Update(void)
-{       
+{
 	  /* Hafl buffer is filled in by I2S data stream in */
 	  if((flgDlyUpd==0))
 	  {
@@ -274,9 +274,9 @@ inline static void BF_Update(void)
 							
 				default:
 					break;
-			   
-		}
 			
+		}
+
 		AudioPlayerUpd();
 	  }
 
@@ -401,7 +401,7 @@ void LedRing_Event(uint8_t Command)
 			break;
 
 		case LED_EMPTY:
-			stripEffect_FullEmpty(80, 10, 100, 100);
+			stripEffect_FullEmpty(80, 100, 100, 100);
 			break;
 	}
 }
@@ -446,7 +446,7 @@ void Button_Event(uint8_t Command)
 				{
 					setLEDcolor(i, 100, 100, 100);
 				}
-				HAL_Delay(10);
+				//HAL_Delay(10);
 				for(i = led_num; i < prev_lednum; i++)
 				{
 					setLEDcolor(i, 0, 0, 0);
@@ -520,16 +520,15 @@ void User_Event(uint8_t Command)
 			MIC_CHECK = 0;
 			break;
 
-		// case RECORD_ERROR:
-		// 	CLEAR_ALL_LEDS();
-		// 	setWHOLEcolor(10, 0, 0);
-		// 	HAL_Delay(3000);
-		// 	CLEAR_ALL_LEDS();
-		// 	break;
+		case ERROR_RECORD:
+			/* 2 channels:16Khz Audio USB */
+			USB_Audio_Config();
+			CLEAR_ALL_LEDS();
+			break;
 
 		case BLE_ON:
 			CLEAR_ALL_LEDS();
-			setWHOLEcolor(0, 10, 0);
+			setWHOLEcolor(0, 10, 50);
 			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
 			break;
@@ -549,7 +548,7 @@ void User_Event(uint8_t Command)
 			LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_SET);
 			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_SET);
 			LEDx_OnOff(CY8C_LED4_PIN, GPIO_PIN_SET);
-			HAL_Delay(1500);
+			HAL_Delay(4000);
 			LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_RESET);
 			LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_RESET);
 			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_RESET);
@@ -946,39 +945,40 @@ void MX_GPIO_Init(void)
 }
 void TIM3_Init(void)
 {
-	  __HAL_RCC_TIM3_CLK_ENABLE();
-  /* Compute the prescaler value to have TIMx counter clock equal to 10000 Hz */
-  uwPrescalerValue = (uint32_t)((SystemCoreClock / 2) / 10000) - 1;
-  /* Set TIMx instance */
-  htim3.Instance = TIM3;
-  /* Initialize TIMx peripheral as follows:
-       + Period = 10000 - 1
-       + Prescaler = ((SystemCoreClock / 2)/10000) - 1
-       + ClockDivision = 0
-       + Counter direction = Up
-  */
-  htim3.Init.Period            = 10000 - 1;
-  htim3.Init.Prescaler         = uwPrescalerValue;
-  htim3.Init.ClockDivision     = 0;
-  htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  htim3.Init.RepetitionCounter = 0;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-  {
-     /* Initialization Error */
-    _Error_Handler(__FILE__, __LINE__);
-  }
+	__HAL_RCC_TIM3_CLK_ENABLE();
+	/* Compute the prescaler value to have TIMx counter clock equal to 10000 Hz */
+	uwPrescalerValue = (uint32_t)((SystemCoreClock / 2) / 10000) - 1;
+	/* Set TIMx instance */
+	htim3.Instance = TIM3;
+	/* Initialize TIMx peripheral as follows:
+		 + Period = 10000 - 1
+		 + Prescaler = ((SystemCoreClock / 2)/10000) - 1
+		 + ClockDivision = 0
+		 + Counter direction = Up
+	*/
+	htim3.Init.Period            = 10000 - 1;
+	htim3.Init.Prescaler         = uwPrescalerValue;
+	htim3.Init.ClockDivision     = 0;
+	htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+	htim3.Init.RepetitionCounter = 0;
+	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+	{
+		/* Initialization Error */
+		_Error_Handler(__FILE__, __LINE__);
+	}
 
-  HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
+	HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
 
-  /* Enable the TIMx global Interrupt */
-  HAL_NVIC_EnableIRQ(TIM3_IRQn);
+	/* Enable the TIMx global Interrupt */
+	HAL_NVIC_EnableIRQ(TIM3_IRQn);
 }
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
 
 }
+
 void SubFrameFinished(void)
 {
 	Audio_Play_Out();
@@ -1050,18 +1050,18 @@ void EXTI4_IRQHandler(void)
   */
 void EXTI1_IRQHandler(void)
 {
-    /* EXTI line 1 interrupt detected */
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
-    {
-        //Read button status
-        result = ReadandDisplaySensorStatus();
-        if(result != CY8CMBR3116_Result_OK)
-        {
-            logs_error("CYPRESS read status");
-        }
-    }
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
-    HAL_GPIO_EXTI_Callback(GPIO_PIN_1);
+	/* EXTI line 1 interrupt detected */
+	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
+	{
+		//Read button status
+		result = ReadandDisplaySensorStatus();
+		if(result != CY8CMBR3116_Result_OK)
+		{
+			logs_error("CYPRESS read status");
+		}
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
+	HAL_GPIO_EXTI_Callback(GPIO_PIN_1);
 }
 
 /**
@@ -1071,49 +1071,49 @@ void EXTI1_IRQHandler(void)
   */
 void EXTI2_IRQHandler(void)
 {
-    /* EXTI line 2 interrupt detected */
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
-    {
-    	/* Wait for the end of the last transfer */
-    	while (HAL_I2C_GetState(&hi2c4) != HAL_I2C_STATE_READY)
-  		{
-  		}
-        //receiving data from Mainboard
-        //logs("Receive I2C Data from Mainboard");
-        while(HAL_I2C_Slave_Receive_IT(&hi2c4, (uint8_t *)aRxBuffer, 3) != HAL_OK)
-        {
-        	/* Error_Handler() function is called when Timeout error occurs.
-       		When Acknowledge failure occurs (Slave don't acknowledge it's address)
-       		Master restarts communication */
-    		if (HAL_I2C_GetError(&hi2c4) != HAL_I2C_ERROR_AF)
-    		{
-        		_Error_Handler(__FILE__, __LINE__);
-    		}
-        }
-    }
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
-    HAL_GPIO_EXTI_Callback(GPIO_PIN_2);
+	/* EXTI line 2 interrupt detected */
+	if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
+	{
+		/* Wait for the end of the last transfer */
+		while (HAL_I2C_GetState(&hi2c4) != HAL_I2C_STATE_READY)
+		{
+		}
+		//receiving data from Mainboard
+		//logs("Receive I2C Data from Mainboard");
+		while(HAL_I2C_Slave_Receive_IT(&hi2c4, (uint8_t *)aRxBuffer, 3) != HAL_OK)
+		{
+			/* Error_Handler() function is called when Timeout error occurs.
+			When Acknowledge failure occurs (Slave don't acknowledge it's address)
+			Master restarts communication */
+			if (HAL_I2C_GetError(&hi2c4) != HAL_I2C_ERROR_AF)
+			{
+				_Error_Handler(__FILE__, __LINE__);
+			}
+		}
+	}
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
+	HAL_GPIO_EXTI_Callback(GPIO_PIN_2);
 }
 
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 {
-  /* Transfer in transmission process is correct */
+	/* Transfer in transmission process is correct */
 }
 
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
 {
-  /* Transfer in reception process is correct */
+	/* Transfer in reception process is correct */
 	if(aRxBuffer[0] == LED_RING)
 	{
 		StopEffect = aRxBuffer[2];
 	}
-    // printf("buffer0: %#x\r\n", aRxBuffer[0]);
-    // printf("buffer1: %#x\r\n", aRxBuffer[1]);
-    // printf("buffer2: %#x\r\n", aRxBuffer[2]);
-    // printf("buffer2: %d\r\n", aRxBuffer[2]);
+	// printf("buffer0: %#x\r\n", aRxBuffer[0]);
+	// printf("buffer1: %#x\r\n", aRxBuffer[1]);
+	// printf("buffer2: %#x\r\n", aRxBuffer[2]);
+	// printf("buffer2: %d\r\n", aRxBuffer[2]);
 
-    //pause mic-array
-    BT_EVENTSTATE = 1;
+	//pause mic-array
+	BT_EVENTSTATE = 1;
 }
 /**
   * @brief  I2C error callbacks.
@@ -1124,14 +1124,14 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
   */
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
 {
-  /** Error_Handler() function is called when error occurs.
-    * 1- When Slave don't acknowledge it's address, Master restarts communication.
-    * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
-    */
-  if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF)
-  {
-    Error_Handler();
-  }
+	/** Error_Handler() function is called when error occurs.
+	  * 1- When Slave don't acknowledge it's address, Master restarts communication.
+	  * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
+	  */
+	if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF)
+	{
+	  Error_Handler();
+	}
 }
 
 /**
@@ -1141,16 +1141,15 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
   */
 void TIM3_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(&htim3);
-  volume_count++;
-  if(volume_count == 5)
-  {
-  	volume_count = 0;
-  	CLEAR_ALL_LEDS();
-  	//printf("clear led_num \r\n");
-  	HAL_TIM_Base_Stop_IT(&htim3);
-  }
-
+	HAL_TIM_IRQHandler(&htim3);
+	volume_count++;
+	if(volume_count == 5)
+	{
+		volume_count = 0;
+		CLEAR_ALL_LEDS();
+		//printf("clear led_num \r\n");
+		HAL_TIM_Base_Stop_IT(&htim3);
+	}
 }
 
 static void USB_Audio_Config(void)

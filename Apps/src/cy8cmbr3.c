@@ -96,7 +96,7 @@ CY8CMBR3116_Result ConfigureMBR3(void)
 		logs_error("Send configuration");
 		return CY8CMBR3116_Result_ERROR;
 	}
-//    HAL_Delay(100); //need, if dont run
+	//HAL_Delay(100); //need, if dont run
 
 	//apply configuration to MBR3
 	TxBuffer[0] = CTRL_CMD;
@@ -162,9 +162,9 @@ void DisplaySensorStatus(uint8_t buffer)
 	if(touched)
 	{
 		touched = 0;
-		logs("Button released");
+		//logs("Button released");
 
-		//clear all led
+		/* clear all led */
 		LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_RESET);
 		LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_RESET);
 		//LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_RESET);
@@ -173,14 +173,14 @@ void DisplaySensorStatus(uint8_t buffer)
 	else if(buffer & VOLUME_DOWN_BT)
 	{
 		LEDx_OnOff(CY8C_LED1_PIN, GPIO_PIN_SET);
-		logs("Button 1 TOUCHED");
+		//logs("Button 1 TOUCHED");
 		touched = 1;
 
 		if(isVolumeBtInProcess == RESET)
 		{
 			isVolumeBtInProcess = SET;
 
-			//sending I2C data to Mainboard
+			/* sending I2C data to Mainboard */
 			OUPUT_PIN_GENERATE_PULSE();
 
 			TxData[0] = CYPRESS_BUTTON;
@@ -195,13 +195,13 @@ void DisplaySensorStatus(uint8_t buffer)
 	else if((buffer & VOLUME_UP_BT))
 	{
 		LEDx_OnOff(CY8C_LED2_PIN, GPIO_PIN_SET);
-		logs("Button 2 TOUCHED");
+		//logs("Button 2 TOUCHED");
 		touched = 1;
 		if(isVolumeBtInProcess == RESET)
 		{
 			isVolumeBtInProcess = SET;
 
-			//sending I2C data to Mainboard
+			/* sending I2C data to Mainboard */
 			OUPUT_PIN_GENERATE_PULSE();
 
 			TxData[0] = CYPRESS_BUTTON;
@@ -215,14 +215,14 @@ void DisplaySensorStatus(uint8_t buffer)
 	}
 	else if(buffer & MUTE_MIC_BT)
 	{
-		logs("Button 3 TOUCHED");
+		//logs("Button 3 TOUCHED");
 		touched = 1;
 		gpo5_status = LED_BTN3_Status();
 		CLEAR_ALL_LEDS();
 		if(!gpo5_status)
 		{
 			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_SET);
-			logs("microphone mute");
+			//logs("microphone mute");
 
 			CLEAR_ALL_LEDS();
 			setWHOLEcolor(100, 0, 0);
@@ -230,14 +230,14 @@ void DisplaySensorStatus(uint8_t buffer)
 		}
 		else {
 			LEDx_OnOff(CY8C_LED3_PIN, GPIO_PIN_RESET);
-			logs("microphone unmute");
+			//logs("microphone unmute");
 			CLEAR_ALL_LEDS();
 			MIC_CHECK = 0;
 		}
 	}
 	else if(buffer & WAKEWORD_BT)
 	{
-		logs("Button 4 TOUCHED");
+		//logs("Button 4 TOUCHED");
 		touched = 1;
 		if(isRecordingBtInProcess == RESET)
 		{
@@ -250,8 +250,8 @@ void DisplaySensorStatus(uint8_t buffer)
 				CLEAR_ALL_LEDS();
 				WakeWord_Effect();
 
-				logs("record now!!!");
-				//sending I2C data to Mainboard
+				//logs("record now!!!");
+				/* sending I2C data to Mainboard */
 				OUPUT_PIN_GENERATE_PULSE();
 
 				TxData[0] = CYPRESS_BUTTON;
