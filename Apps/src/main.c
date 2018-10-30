@@ -123,8 +123,10 @@ uint8_t  pUARTBuf[128];
 
 extern __IO uint16_t idxFrmUSB;
 extern __IO ITStatus isVolumeBtInProcess;
+extern __IO ITStatus isRecordingBtEvent;
 __IO uint8_t BT_EVENTSTATE = 0;
 __IO uint8_t MIC_CHECK = 0;
+//__IO uint8_t IsVolumemuted = RESET;
 uint8_t Ex_Buffer[3];
 uint8_t StopEffect = 0;
 uint8_t volume_count = 0;
@@ -462,6 +464,7 @@ void Button_Event(uint8_t Command)
 			setWHOLEcolor(100, 100, 0);
 			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
+//			IsVolumemuted = SET;
 			isVolumeBtInProcess = RESET;//for case volume below 20%
 			break;
 
@@ -473,6 +476,7 @@ void Button_Event(uint8_t Command)
 			}
 			HAL_Delay(2000);
 			CLEAR_ALL_LEDS();
+//			IsVolumemuted = RESET;
 			break;
 
 		// case MICROPHONE_MUTE:
@@ -495,6 +499,7 @@ void User_Event(uint8_t Command)
 		case WAKE_WORD_STOP:
 			//stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
 			WakeWordLedStop(700, 1, 10, 100, 100);
+			isRecordingBtEvent = RESET;
 			break;
 
 		case WIFI_DISCONNECTED:
@@ -1146,7 +1151,9 @@ void TIM3_IRQHandler(void)
 	if(volume_count == 5)
 	{
 		volume_count = 0;
-		CLEAR_ALL_LEDS();
+		if(isRecordingBtEvent == RESET) {
+			CLEAR_ALL_LEDS();
+		}
 		//printf("clear led_num \r\n");
 		HAL_TIM_Base_Stop_IT(&htim3);
 	}

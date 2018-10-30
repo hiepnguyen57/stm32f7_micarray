@@ -13,7 +13,7 @@ __IO ITStatus isVolumeBtInProcess = RESET;
 __IO ITStatus isRecordingBtInProcess = RESET;
 extern __IO uint8_t MIC_CHECK;
 extern __IO uint8_t BT_EVENTSTATE;
-
+__IO ITStatus isRecordingBtEvent = RESET;
 /* Above are the Command Codes used to configure MBR3*/
 uint8_t configData[129] = {
 	//The below configuration array enables all 4 buttons, Host interrupt
@@ -249,7 +249,7 @@ void DisplaySensorStatus(uint8_t buffer)
 				LEDx_OnOff(CY8C_LED4_PIN, GPIO_PIN_SET);
 				CLEAR_ALL_LEDS();
 				WakeWord_Effect();
-
+				isRecordingBtEvent = SET;
 				//logs("record now!!!");
 				/* sending I2C data to Mainboard */
 				OUPUT_PIN_GENERATE_PULSE();
