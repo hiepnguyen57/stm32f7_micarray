@@ -1,5 +1,9 @@
-CYPRESS_INT -> MPU_INT -> PD1
-CPU_INT0 -> PD2
-CPU_INT1 -> PD3
-CYPRESS_RST -> PB1
-LED_5V_PWR -> PE14
+# OLLI STM32F7 FIRMWARE
+by olli@olli-ai.com
+
+[Home Page] (http://olli-ai.com)
+
+Version: 1.0.0 (10/02/2018)
+
+# OLLI-FIRMWARE-TEAM
+## We are a small group of engineers and researchers who strongly believe in the uptapped power of Artificial Intelligence
