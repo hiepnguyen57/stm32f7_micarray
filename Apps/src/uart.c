@@ -101,11 +101,11 @@ void UART3_Init(void)
 	HAL_UART_Init(&huart3);
 }
 
-int _write(int fd, char * str, int len)
-{
-    HAL_UART_Transmit(&huart3, (uint8_t*)str, len , 100);
-    return len;
-}
+// int _write(int fd, char * str, int len)
+// {
+//     HAL_UART_Transmit(&huart3, (uint8_t*)str, len , 100);
+//     return len;
+// }
 
 /**
   * @brief  Tx Transfer completed callback
@@ -177,4 +177,9 @@ void USARTX_MAIN_DMA_TX_IRQHandler(void)
 void USARTX_MAIN_DMA_RX_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(huart3.hdmarx);
+}
+
+void debug_info(char * str)
+{
+    HAL_UART_Transmit_DMA(&huart3, (uint8_t*)str, strlen(str));
 }

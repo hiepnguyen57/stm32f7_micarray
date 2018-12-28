@@ -12,6 +12,7 @@ OBJECTS+=${COMPILER}/main.o \
 		 ${COMPILER}/ws281x.o \
 		 ${COMPILER}/stripEffects.o \
 		 ${COMPILER}/cy8cmbr3.o \
+		 ${COMPILER}/uart.o \
 ##############################################################################
 #
 #   The flags passed to the C compiler.

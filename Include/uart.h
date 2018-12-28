@@ -1,6 +1,8 @@
 #ifndef __UART_H
 #define __UART_H
 
+#define UART_TXBUFFERSIZE                      (COUNTOF(aUartBuffer) - 1)
+
 /* Definition for USART3 clock resources */
 #define USARTX_MAIN                             USART3
 #define USARTX_MAIN_CLK_ENABLE()                __USART3_CLK_ENABLE()
@@ -40,4 +42,6 @@ void USARTX_MAIN_IRQHandler(void);
 void USARTX_MAIN_DMA_TX_IRQHandler(void);
 void USARTX_MAIN_DMA_RX_IRQHandler(void);
 void UART3_Init(void);
+void debug_info(char * str);
+
 #endif /* __UART_H */

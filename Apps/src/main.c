@@ -42,6 +42,7 @@
 #include "stm32f7xx_it.h"
 #include "cy8cmbr3.h"
 #include "stripEffects.h"
+#include "uart.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -63,10 +64,13 @@
 /* Private define ------------------------------------------------------------*/
 #define I2CX_TIMING 			0x40912732 //0x40912732 //0x00303D5D; 0x00A0689A
 #define I2C_ADDRESS 			0xD0
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 uint8_t aTxBuffer[4];
 uint8_t aRxBuffer[4];
+
+
 CY8CMBR3116_Result result;
 LPTIM_HandleTypeDef             LptimHandle;
 
@@ -85,6 +89,8 @@ extern __IO uint8_t flgRacing;
 
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c4;
+
+extern UART_HandleTypeDef huart3;
 
 /* TIM handle declaration */
 TIM_HandleTypeDef htim3;
@@ -605,7 +611,9 @@ int main(void)
 
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
+
 	log_init();
+	UART3_Init();
 
 	BSP_AUDIO_OUT_ClockConfig(AUDIO_FREQ, NULL);
 
@@ -626,7 +634,8 @@ int main(void)
 	result = ConfigureMBR3();
 	if(result != CY8CMBR3116_Result_OK)
 	{
-		logs_error("Configure MBR3");
+		//logs_error("Configure MBR3");
+		debug_info("Error: Configure MBR3\r\n");
 	}
 
 	/* Configure LED RING */
@@ -661,6 +670,7 @@ int main(void)
 // #if DEBUG
 // 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
 // 					printf("%s\r\n", pUARTBuf);
+// 					debug_info(pUARTBuf);
 // #endif
 // 				}
 			}
@@ -1063,6 +1073,7 @@ void EXTI1_IRQHandler(void)
 		if(result != CY8CMBR3116_Result_OK)
 		{
 			logs_error("CYPRESS read status");
+			debug_info("ERROR: CYPRESS read status\r\n");
 		}
 	}
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
