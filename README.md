@@ -11,7 +11,7 @@ The software control six-mircophones array to wake up the device and trigger a s
 
 Base on HAL STM32Cube_FW_F7_V1.12.0
 
-## BSP direction instruction:
+## BSP direction instruction
 ```
 [BSP]
 |─ Apps
