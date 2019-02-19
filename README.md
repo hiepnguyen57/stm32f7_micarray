@@ -65,5 +65,23 @@ export PATH=$PATH:<path/to/your/toolchain/folder>
 ```
 make
 ```
+### Flashing
+#### PC Linux
+Connect to ST-Link. Type command:
+```
+make flash
+```
+#### Mainboard
+Copy binary file to mainboard using scp.
+```
+scp Images/Olli-stm32f7-firmware.bin root@your_maiboard_ip:/home/root
+```
+Use `DFU_FLASHING_INTO_INTERNAL_FLASH.sh` to write Image into Internal Flash
+
+```
+./DFU_FLASHING_INTO_INTERNAL_FLASH.sh /path/to/bin/file
+For example:
+./DFU_FLASHING_INTO_INTERNAL_FLASH.sh /home/root/Olli-stm32f7-firmware.bin
+```
 # OLLI-FIRMWARE-TEAM
 ## We are a small group of engineers and researchers who strongly believe in the uptapped power of Artificial Intelligence
