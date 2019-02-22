@@ -255,7 +255,7 @@ void DisplaySensorStatus(uint8_t buffer)
 				OUPUT_PIN_GENERATE_PULSE();
 
 				TxData[0] = CYPRESS_BUTTON;
-				TxData[1] = BT_WAKEWORD_START;
+				TxData[1] = WAKEWORD_START;
 				if(HAL_I2C_Slave_Transmit_IT(&hi2c4, (uint8_t*)TxData, 2) != HAL_OK)
 				{
 					/* Transfer error in transmission process */

@@ -13,7 +13,7 @@
 #define VOLUME_UP			0x20
 #define VOLUME_DOWN			0x21
 #define VOLUME_MUTE			0x22
-#define BT_WAKEWORD_START	0x23
+#define WAKEWORD_START	    0x23
 #define WAKE_WORD_STOP		0x24
 #define VOLUME_UNMUTE		0x25
 #define MICROPHONE_MUTE		0x26

@@ -397,7 +397,7 @@ void LedRing_Event(uint8_t Command)
 			break;
 
 		case LED_PATTERN:
-			stripEffect_PatternMove(50, 2, 10, 10, 10);
+			stripEffect_PatternMove(50, 2, 100, 10, 10);
 			break;
 
 		case COLOR_WHEEL:
@@ -502,6 +502,9 @@ void User_Event(uint8_t Command)
 {
 	switch(Command)
 	{
+		case WAKEWORD_START:
+			setWHOLEcolor(10, 100, 100);
+			break;
 		case WAKE_WORD_STOP:
 			//stripEffect_AlternateColors(1000, 10, 50, 0, 0, 0, 0, 50);
 			WakeWordLedStop(700, 1, 10, 100, 100);
@@ -640,7 +643,11 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-	setWHOLEcolor(100, 100, 100);
+	//setWHOLEcolor(100, 100, 100);
+	//setLEDcolor(0, 255, 0, 0);
+	setLEDcolor(7, 0, 255, 0);
+	setLEDcolor(14, 100, 100, 100);
+
 	TIM3_Init();
 
 	/* PWM output */
@@ -664,15 +671,15 @@ int main(void)
 			if(!MIC_CHECK)
 			{
 				BF_Update();
-// 				if (flg10ms==1)
-// 				{
-// 					flg10ms=0;  
-// #if DEBUG
-// 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-// 					printf("%s\r\n", pUARTBuf);
-// 					debug_info(pUARTBuf);
-// #endif
-// 				}
+				if (flg10ms==1)
+				{
+					flg10ms=0;  
+#if DEBUG
+					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
+					printf("%s\r\n", pUARTBuf);
+					debug_info(pUARTBuf);
+#endif
+				}
 			}
 
 		}
