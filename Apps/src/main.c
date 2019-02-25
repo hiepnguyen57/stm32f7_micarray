@@ -397,7 +397,7 @@ void LedRing_Event(uint8_t Command)
 			break;
 
 		case LED_PATTERN:
-			stripEffect_PatternMove(50, 2, 100, 10, 10);
+			stripEffect_PatternMove(100, 4, 0, 100, 100);
 			break;
 
 		case COLOR_WHEEL:
