@@ -534,7 +534,7 @@ void User_Event(uint8_t Command)
 			MIC_CHECK = 0;
 			break;
 
-		case ERROR_RECORD:
+		case USB_AUDIO:
 			/* 2 channels:16Khz Audio USB */
 			USB_Audio_Config();
 			CLEAR_ALL_LEDS();
@@ -554,7 +554,7 @@ void User_Event(uint8_t Command)
 			CLEAR_ALL_LEDS();
 			break;
 
-		case USB_AUDIO:
+		case ALL_LED_ON:
 			/* 2 channels:16Khz Audio USB */
 			USB_Audio_Config();
 
@@ -643,10 +643,7 @@ int main(void)
 
 	/* Configure LED RING */
 	ws281x_init();
-	//setWHOLEcolor(100, 100, 100);
-	//setLEDcolor(0, 255, 0, 0);
-	setLEDcolor(7, 0, 255, 0);
-	setLEDcolor(14, 100, 100, 100);
+	setWHOLEcolor(100, 100, 100);
 
 	TIM3_Init();
 
@@ -676,7 +673,7 @@ int main(void)
 					flg10ms=0;  
 #if DEBUG
 					sprintf((char *)(pUARTBuf),"Direction: %3d\r\n",Direction*60);
-					printf("%s\r\n", pUARTBuf);
+					//printf("%s\r\n", pUARTBuf);
 					debug_info(pUARTBuf);
 #endif
 				}
