@@ -1,8 +1,4 @@
-# OLLI STM32F7 FIRMWARE
-
-by hiep@olli-ai.com
-
-[Home Page] (https://olli-ai.com)
+by hoahiepk10@gmail.com
 
 Version: 1.0.1 (13/02/2019)
 
@@ -74,7 +70,7 @@ make flash
 #### Mainboard
 Copy binary file to mainboard using scp.
 ```
-scp Images/Olli-stm32f7-firmware.bin root@your_maiboard_ip:/home/root
+scp Images/stm32f7-firmware.bin root@your_maiboard_ip:/home/root
 ```
 Use `DFU_FLASHING_INTO_INTERNAL_FLASH.sh` to write Image into Internal Flash
 
@@ -82,7 +78,5 @@ Use `DFU_FLASHING_INTO_INTERNAL_FLASH.sh` to write Image into Internal Flash
 cd mixes
 ./DFU_FLASHING_INTO_INTERNAL_FLASH.sh /path/to/bin/file
 For example:
-./DFU_FLASHING_INTO_INTERNAL_FLASH.sh /home/root/Olli-stm32f7-firmware.bin
+./DFU_FLASHING_INTO_INTERNAL_FLASH.sh /home/root/stm32-stm32f7-firmware.bin
 ```
-# OLLI-FIRMWARE-TEAM
-## We are a small group of engineers and researchers who strongly believe in the uptapped power of Artificial Intelligence
