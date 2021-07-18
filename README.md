@@ -49,11 +49,11 @@ Link at: "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads/7
 
 ### Clone the BSP source code
 ```
-git clone https://github.com/olli-ai/OLLI_STM32F7_Firmware.git
+git clone https://github.com/hiepnguyen57/stm32f7_micarray.git
 ```
 ### Export Environment
 ```
-cd OLLI_STM32F7_FIRMWARE
+cd stm32f7_micarray
 export ARCH=arm
 export PATH=$PATH:<path/to/your/toolchain/folder>
 ```
